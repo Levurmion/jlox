@@ -1,9 +1,9 @@
 package com.lox.lexer;
 
 public class Token<TokenTypes> {
-    final TokenTypes type;
-    final String lexeme;
-    final Object literal;
+    public final TokenTypes type;
+    public final String lexeme;
+    public final Object literal;
     public int line;
     public int col;
     

@@ -33,5 +33,12 @@
     </plugins>
 </build>
 
+<properties>
+    <!-- Specify the JDK version -->
+    <maven.compiler.source>21</maven.compiler.source> <!-- JDK source compatibility -->
+    <maven.compiler.target>21</maven.compiler.target> <!-- JDK target compatibility -->
+  
+</properties>
+
 </project>
 

@@ -8,7 +8,7 @@ import com.lox.lexer.Token;
 import com.lox.lexer.exceptions.InvalidTokenException;
 
 public class LoxLexer {
-    private String source;
+    final private String source;
     private int line = 1;
     private int col = 0;
     private int current = 0;
@@ -46,15 +46,7 @@ public class LoxLexer {
         new LoxTokenPattern.Greater(),
         new LoxTokenPattern.Less(),
 
-        // match primitives
-        new LoxTokenPattern.Identifier(),
-        new LoxTokenPattern.StringLiteral(),
-        new LoxTokenPattern.NumberLiteral(),
-        new LoxTokenPattern.TrueLiteral(),
-        new LoxTokenPattern.FalseLiteral(),
-        new LoxTokenPattern.NilLiteral(),
-
-        // finally, match keywords
+        // match keywords
         new LoxTokenPattern.And(),
         new LoxTokenPattern.Or(),
         new LoxTokenPattern.If(),
@@ -66,40 +58,76 @@ public class LoxLexer {
         new LoxTokenPattern.Print(),
         new LoxTokenPattern.Var(),
         new LoxTokenPattern.For(),
-        new LoxTokenPattern.While()
+        new LoxTokenPattern.While(),
+    
+        // finally, match primitives and generics
+        new LoxTokenPattern.StringLiteral(),
+        new LoxTokenPattern.NumberLiteral(),
+        new LoxTokenPattern.TrueLiteral(),
+        new LoxTokenPattern.FalseLiteral(),
+        new LoxTokenPattern.NilLiteral(),
+        new LoxTokenPattern.Identifier(),
     };
     
     public LoxLexer (String source) {
         this.source = source;
     }
 
-    private Token<LoxTokenType> scanToken () throws Exception {
+    private Token<LoxTokenType> scanToken (String currSource) throws InvalidTokenException {
         for (LoxTokenPattern pattern : this.patterns) {
-            var result = pattern.match(this.source);
+            Optional<Token<LoxTokenType>> result = pattern.match(currSource);
             if (result.isPresent()) {
                 return result.get();
             }
         }
 
-        throw new InvalidTokenException(this.source);
+        throw new InvalidTokenException(currSource);
     }
 
-    private void handleWhitespace () {
-        boolean isNewline = this.newlinePattern.matcher(this.source).find();
-        boolean isWhitespace = this.whitespacePattern.matcher(this.source).find();
+    private boolean handleWhitespace (String currSource) {
+        boolean isNewline = this.newlinePattern.matcher(currSource).find();
+        boolean isWhitespace = this.whitespacePattern.matcher(currSource).find();
 
         if (isNewline) {
             this.line++;
             this.col = 0;
             this.current++;
+            return true;
         } else if (isWhitespace) {
             this.col++;
             this.current++;
+            return true;
         }
+
+        return false;
     }
 
     public void tokenize () {
+        while (this.current < this.source.length()) {
+            String currSource = this.source.substring(this.current);
+            if (this.handleWhitespace(currSource)) {
+                continue;
+            } 
+            
+            try {
+                Token<LoxTokenType> token = this.scanToken(currSource);
+                this.col += token.lexeme.length();
+                this.current += token.lexeme.length();
+                token.setLine(line);
+                token.setCol(col);
+                this.tokens.add(token);
+            } catch (InvalidTokenException e) {
+                System.err.println(e.getMessage());
+                return;
+            }
+        }
 
+        // add EOF token to end of input
+        tokens.add(new Token<>(
+            LoxTokenType.EOF, 
+            "$", 
+            "$"
+        ));
     }
 
 }

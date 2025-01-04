@@ -276,7 +276,17 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern<LoxTokenType>
     static public class StringLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^\"((?:\\.|[^\"\\])*)\"$";
+            return "^\"((?:\\\\.|[^\"\\\\])*)\"";
+        }
+
+        @Override
+        protected String getLexeme (Matcher matcher) {
+            return matcher.group(0);
+        }
+
+        @Override
+        protected String getLiteral (String lexeme) {
+            return lexeme.substring(1, lexeme.length()-1);
         }
 
         @Override
@@ -288,7 +298,7 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern<LoxTokenType>
     static public class NumberLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(-?\\d+(\\.\\d+)?)$";
+            return "^(-?\\d+(\\.\\d+)?)";
         }
 
         @Override
