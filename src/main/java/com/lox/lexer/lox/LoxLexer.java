@@ -1,13 +1,24 @@
-package com.lox.lexer;
+package com.lox.lexer.lox;
 
-import com.lox.lexer.lox_patterns.LoxTokenPattern;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import com.lox.lexer.Token;
+import com.lox.lexer.exceptions.InvalidTokenException;
 
 public class LoxLexer {
     private String source;
     private int line = 1;
     private int col = 0;
+    private int current = 0;
+    
+    final private Pattern newlinePattern = Pattern.compile("^(\\n|\\r)");
+    final private Pattern whitespacePattern = Pattern.compile("^\\s");
 
-    private LoxTokenPattern[] patterns = {
+    public ArrayList<Token<LoxTokenType>> tokens = new ArrayList<>();
+
+    final private LoxTokenPattern[] patterns = {
         // match single-character tokens first
         new LoxTokenPattern.LeftParen(),
         new LoxTokenPattern.RightParen(),
@@ -43,7 +54,7 @@ public class LoxLexer {
         new LoxTokenPattern.FalseLiteral(),
         new LoxTokenPattern.NilLiteral(),
 
-        // match keywords
+        // finally, match keywords
         new LoxTokenPattern.And(),
         new LoxTokenPattern.Or(),
         new LoxTokenPattern.If(),
@@ -61,4 +72,34 @@ public class LoxLexer {
     public LoxLexer (String source) {
         this.source = source;
     }
+
+    private Token<LoxTokenType> scanToken () throws Exception {
+        for (LoxTokenPattern pattern : this.patterns) {
+            var result = pattern.match(this.source);
+            if (result.isPresent()) {
+                return result.get();
+            }
+        }
+
+        throw new InvalidTokenException(this.source);
+    }
+
+    private void handleWhitespace () {
+        boolean isNewline = this.newlinePattern.matcher(this.source).find();
+        boolean isWhitespace = this.whitespacePattern.matcher(this.source).find();
+
+        if (isNewline) {
+            this.line++;
+            this.col = 0;
+            this.current++;
+        } else if (isWhitespace) {
+            this.col++;
+            this.current++;
+        }
+    }
+
+    public void tokenize () {
+
+    }
+
 }

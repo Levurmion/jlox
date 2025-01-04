@@ -1,13 +1,13 @@
 package com.lox.lexer;
 
-public class Token {
-    final TokenType type;
+public class Token<TokenTypes> {
+    final TokenTypes type;
     final String lexeme;
     final Object literal;
     public int line;
     public int col;
     
-    public Token (TokenType type, String lexeme, Object literal, int line, int col) {
+    public Token (TokenTypes type, String lexeme, Object literal, int line, int col) {
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;
@@ -15,7 +15,7 @@ public class Token {
         this.col = col;
     }
 
-    public Token (TokenType type, String lexeme, Object literal) {
+    public Token (TokenTypes type, String lexeme, Object literal) {
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;

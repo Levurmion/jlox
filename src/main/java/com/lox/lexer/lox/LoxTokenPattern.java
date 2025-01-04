@@ -1,11 +1,10 @@
-package com.lox.lexer.lox_patterns;
+package com.lox.lexer.lox;
 
 import java.util.regex.Matcher;
 
-import com.lox.lexer.TokenType;
 import com.lox.lexer.token_pattern.AbstractTokenPattern;
 
-public abstract class LoxTokenPattern extends AbstractTokenPattern {
+public abstract class LoxTokenPattern extends AbstractTokenPattern<LoxTokenType> {
 
     @Override
     protected String getLexeme (Matcher matcher) {
@@ -33,8 +32,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.LEFT_PAREN;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.LEFT_PAREN;
         }
     }
 
@@ -45,8 +44,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.RIGHT_PAREN;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.RIGHT_PAREN;
         }
     }
 
@@ -57,8 +56,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.LEFT_BRACE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.LEFT_BRACE;
         }
     }
 
@@ -69,8 +68,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.RIGHT_BRACE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.RIGHT_BRACE;
         }
     }
 
@@ -81,8 +80,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.COMMA;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.COMMA;
         }
     }
 
@@ -93,8 +92,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.DOT;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.DOT;
         }
     }
 
@@ -105,8 +104,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.MINUS;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.MINUS;
         }
     }
 
@@ -117,8 +116,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.PLUS;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.PLUS;
         }
     }
 
@@ -129,8 +128,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.SEMICOLON;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.SEMICOLON;
         }
     }
 
@@ -141,8 +140,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.SLASH;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.SLASH;
         }
     }
 
@@ -153,8 +152,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.STAR;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.STAR;
         }
     }
 
@@ -169,8 +168,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.BANG;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.BANG;
         }
     }
 
@@ -181,8 +180,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.BANG_EQUAL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.BANG_EQUAL;
         }
     }
 
@@ -193,8 +192,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.EQUAL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.EQUAL;
         }
     }
 
@@ -205,8 +204,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.EQUAL_EQUAL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.EQUAL_EQUAL;
         }
     }
 
@@ -217,8 +216,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.GREATER;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.GREATER;
         }
     }
 
@@ -229,8 +228,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.GREATER_EQUAL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.GREATER_EQUAL;
         }
     }
 
@@ -241,8 +240,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.LESS;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.LESS;
         }
     }
 
@@ -253,8 +252,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.LESS_EQUAL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.LESS_EQUAL;
         }
     }
 
@@ -269,8 +268,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.IDENTIFIER;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.IDENTIFIER;
         }
     }
 
@@ -281,8 +280,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.STRING;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.STRING;
         }
     }
     
@@ -293,8 +292,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.NUMBER;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.NUMBER;
         }
 
         @Override
@@ -310,8 +309,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.TRUE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.TRUE;
         }
 
         @Override
@@ -327,8 +326,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.FALSE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.FALSE;
         }
 
         @Override
@@ -344,8 +343,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.NIL;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.NIL;
         }
 
         @Override
@@ -365,8 +364,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.AND;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.AND;
         }
     }
 
@@ -377,8 +376,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.OR;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.OR;
         }
     }
 
@@ -389,8 +388,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.IF;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.IF;
         }
     }
 
@@ -401,8 +400,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.ELSE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.ELSE;
         }
     }
 
@@ -413,8 +412,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.RETURN;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.RETURN;
         }
     }
 
@@ -425,8 +424,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.VAR;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.VAR;
         }
     }
 
@@ -437,8 +436,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.THIS;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.THIS;
         }
     }
 
@@ -449,8 +448,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.FOR;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.FOR;
         }
     }
 
@@ -461,8 +460,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.WHILE;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.WHILE;
         }
     }
 
@@ -473,8 +472,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.PRINT;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.PRINT;
         }
     }
 
@@ -485,8 +484,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.CLASS;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.CLASS;
         }
     }
 
@@ -497,8 +496,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.FUN;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.FUN;
         }
     }
 
@@ -509,8 +508,8 @@ public abstract class LoxTokenPattern extends AbstractTokenPattern {
         }
 
         @Override
-        protected TokenType getTokenType() {
-            return TokenType.SUPER;
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.SUPER;
         }
     }
 }

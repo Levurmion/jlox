@@ -1,6 +1,6 @@
-package com.lox.lexer;
+package com.lox.lexer.lox;
 
-public enum TokenType {
+public enum LoxTokenType {
     // single char tokens
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA,
     DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,

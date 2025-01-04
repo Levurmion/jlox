@@ -5,9 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.lox.lexer.Token;
-import com.lox.lexer.TokenType;
 
-public abstract class AbstractTokenPattern {
+public abstract class AbstractTokenPattern<TokenTypes> {
     final private Pattern pattern;
     private Matcher matcher;
 
@@ -16,13 +15,13 @@ public abstract class AbstractTokenPattern {
         this.pattern = Pattern.compile(regex);
     }
     
-    public Optional<Token> match(String source) {
+    public Optional<Token<TokenTypes>> match(String source) {
         this.matcher = this.pattern.matcher(source);
         
         if (this.matcher.find()) {
             String lexeme = this.getLexeme(this.matcher);
             Object literal = this.getLiteral(lexeme);
-            Token token = new Token(this.getTokenType(), lexeme, literal);
+            Token<TokenTypes> token = new Token<TokenTypes>(this.getTokenType(), lexeme, literal);
             return Optional.of(token);
         }
         
@@ -30,7 +29,7 @@ public abstract class AbstractTokenPattern {
     }
 
     abstract protected String getRegex();
-    abstract protected TokenType getTokenType();
+    abstract protected TokenTypes getTokenType();
     abstract protected String getLexeme (Matcher matcher);
     abstract protected Object getLiteral (String lexeme);
 } 
