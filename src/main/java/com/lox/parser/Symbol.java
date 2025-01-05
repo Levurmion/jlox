@@ -24,6 +24,6 @@ public class Symbol {
     }
 
     static abstract class NonTerminal extends Symbol {
-        abstract public void production (Parser.Context ctx, Symbol parent) throws ParsingException;
+        abstract public AstNode production (Parser.Context ctx, Symbol parent) throws ParsingException;
     }
 }
