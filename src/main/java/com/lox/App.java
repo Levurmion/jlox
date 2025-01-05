@@ -11,12 +11,7 @@ public class App
     public static void main( String[] args )
     {   
         String loxCode = """
-                var identifier = 12;
-                class MyClass {
-                    method () {
-                        print "Hello";
-                    }
-                }
+                1 + 2 * (5 / 2);
                 """;
         LoxLexer lexer = new LoxLexer(loxCode);
         lexer.tokenize();
