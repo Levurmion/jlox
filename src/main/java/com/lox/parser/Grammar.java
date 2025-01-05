@@ -1,131 +1,99 @@
 package com.lox.parser;
 
-import java.text.ParseException;
-
-import com.lox.lexer.lox.LoxTokenPattern;
 import com.lox.lexer.lox.LoxTokenType;
+import com.lox.parser.ast.AstNode;
+import com.lox.parser.ast.Expr;
 import com.lox.parser.exceptions.ParsingException;
 
 public class Grammar {
 
-    static class Primary extends Symbol.NonTerminal {
-        @Override
-        public void production (Parser.Context ctx, Symbol parent) throws ParsingException {
-            Symbol.Terminal primarySymbol = null;
+    public AstNode start (Parser.Context ctx) throws ParsingException {
+        return expression(ctx);
+    }
 
-            if (ctx.match(LoxTokenType.NUMBER)) {
-                primarySymbol = new Symbol.Terminal((double)ctx.getLastMatchedToken().get().literal);
-            } else if (ctx.match(LoxTokenType.STRING)) {
-                primarySymbol = new Symbol.Terminal((String)ctx.getLastMatchedToken().get().literal);
-            } else if (ctx.match(LoxTokenType.TRUE)) {
-                primarySymbol = new Symbol.Terminal(true);
-            } else if (ctx.match(LoxTokenType.FALSE)) {
-                primarySymbol = new Symbol.Terminal(true);
-            } else if (ctx.match(LoxTokenType.NIL)) {
-                primarySymbol = new Symbol.Terminal(null);
-            } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
-                primarySymbol = new Symbol.Terminal("(");
-            } else {
-                throw new ParsingException(ctx.getCurrToken().get());
-            }
+    private Expr expression (Parser.Context ctx) throws ParsingException {
+        return equality(ctx);
+    }
+    
+    private Expr equality (Parser.Context ctx) throws ParsingException {
+        Expr expr = comparison(ctx);
+        while (ctx.match(LoxTokenType.BANG_EQUAL, LoxTokenType.EQUAL_EQUAL)) {
+            var operator = ctx.getLastMatchedToken();
+            Expr right = comparison(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
 
-            parent.children.add(primarySymbol);
+        return expr;
+    }   
 
-            if (primarySymbol.literal == "(") {
-                Symbol.NonTerminal nestedExpression = new Expression();
-                parent.children.add(nestedExpression);
+    private Expr comparison (Parser.Context ctx) throws ParsingException {
+        Expr expr = term(ctx);
+        while (ctx.match(
+            LoxTokenType.LESS, 
+            LoxTokenType.GREATER, 
+            LoxTokenType.LESS_EQUAL, 
+            LoxTokenType.GREATER_EQUAL
+        )) {
+            var operator = ctx.getLastMatchedToken();
+            Expr right = term(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
 
-                // process the nested expression
-                nestedExpression.production(ctx, nestedExpression);
+        return expr;
+    }
 
-                // when it returns, the next token must be a RIGHT_PAREN
-                if (ctx.match(LoxTokenType.RIGHT_PAREN)) {
-                    parent.children.add(new Symbol.Terminal(")"));
-                } else {
-                    throw new ParsingException(ctx.getCurrToken().get());
-                }
-            }
+    private Expr term (Parser.Context ctx) throws ParsingException {
+        Expr expr = factor(ctx);
+        while (ctx.match(LoxTokenType.MINUS, LoxTokenType.PLUS)) {
+            var operator = ctx.getLastMatchedToken();
+            Expr right = factor(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr factor (Parser.Context ctx) throws ParsingException {
+        Expr expr = unary(ctx);
+        while (ctx.match(LoxTokenType.STAR, LoxTokenType.SLASH)) {
+            var operator = ctx.getLastMatchedToken();
+            Expr right = unary(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr unary (Parser.Context ctx) throws ParsingException {
+        if (ctx.match(LoxTokenType.MINUS, LoxTokenType.BANG)) {
+            var operator = ctx.getLastMatchedToken();
+            Expr right = unary(ctx);
+            return new Expr.Unary(operator, right);
+        } else {
+            return primary(ctx);
         }
     }
 
-    static class Unary extends Symbol.NonTerminal {
+    private Expr primary (Parser.Context ctx) throws ParsingException {
+        if (ctx.match(
+            LoxTokenType.NUMBER,
+            LoxTokenType.STRING,
+            LoxTokenType.TRUE,
+            LoxTokenType.FALSE,
+            LoxTokenType.NIL
+        )) {
+            return new Expr.Literal(ctx.getLastMatchedToken()); 
 
-        private boolean matchUnary (Parser.Context ctx) {
-            return ctx.match(LoxTokenType.BANG, LoxTokenType.MINUS);
-        }
-
-        @Override
-        public void production (Parser.Context ctx, Symbol parent) throws ParsingException {
-            while (this.matchUnary(ctx)) {
-                var matchedToken = ctx.getLastMatchedToken();
-                parent.children.add(new Symbol.Terminal(matchedToken.get().literal));
-            }
+        } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
+            Expr expression = expression(ctx);
             
-            // finally, expand the Primary
-            if (
-                ctx.lookahead(
-                    LoxTokenType.NUMBER,
-                    LoxTokenType.STRING,
-                    LoxTokenType.TRUE, 
-                    LoxTokenType.FALSE,
-                    LoxTokenType.NIL,
-                    LoxTokenType.LEFT_PAREN
-                )
-            ) {
-                Primary primary = new Primary();
-                parent.children.add(primary);
-                primary.production(ctx, primary);
+            if (ctx.match(LoxTokenType.RIGHT_PAREN)) {
+                return expression;
             } else {
-                throw new ParsingException(ctx.getCurrToken().get());
+                throw new ParsingException(ctx.getCurrToken());
             }
         }
-    }
 
-    static class Factor extends Symbol.NonTerminal {
-
-        private boolean expectsUnary (Parser.Context ctx) {
-            return (
-                ctx.lookahead(
-                    LoxTokenType.NUMBER,
-                    LoxTokenType.STRING,
-                    LoxTokenType.TRUE,
-                    LoxTokenType.FALSE,
-                    LoxTokenType.NIL,
-                    LoxTokenType.LEFT_PAREN,
-                    LoxTokenType.BANG,
-                    LoxTokenType.MINUS
-                )
-            );
-        }
-
-        @Override
-        public void production (Parser.Context ctx, Symbol parent) throws ParsingException {
-            if (this.expectsUnary(ctx)) {
-                Unary firstUnary = new Unary();
-                parent.children.add(firstUnary);
-                firstUnary.production(ctx, firstUnary);
-
-                // after processing each unary, check if we are expecting another unary
-                while (true) { 
-                    Symbol.Terminal factorSymbol = null;
-                    if (ctx.match(LoxTokenType.STAR)) {
-                        factorSymbol = new Symbol.Terminal("*");
-                    } else if (ctx.match(LoxTokenType.SLASH)) {
-                        factorSymbol = new Symbol.Terminal("/");
-                    }
-
-                    if (factorSymbol != null) {
-                        parent.children.add(factorSymbol);
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    static class Expression extends Symbol.NonTerminal {
-        @Override
-        public void production (Parser.Context ctx) throws ParsingException {}
+        throw new ParsingException(ctx.getCurrToken());
     }
 }

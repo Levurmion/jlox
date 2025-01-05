@@ -4,9 +4,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lox.lexer.Token;
+import com.lox.lexer.lox.LoxToken;
+import com.lox.lexer.lox.LoxTokenType;
 
-public abstract class AbstractTokenPattern<TokenTypes> {
+public abstract class AbstractTokenPattern {
     final private Pattern pattern;
     private Matcher matcher;
 
@@ -15,13 +16,13 @@ public abstract class AbstractTokenPattern<TokenTypes> {
         this.pattern = Pattern.compile(regex);
     }
     
-    public Optional<Token<TokenTypes>> match(String source) {
+    public Optional<LoxToken> match(String source) {
         this.matcher = this.pattern.matcher(source);
         
         if (this.matcher.find()) {
             String lexeme = this.getLexeme(this.matcher);
             Object literal = this.getLiteral(lexeme);
-            Token<TokenTypes> token = new Token<TokenTypes>(this.getTokenType(), lexeme, literal);
+            LoxToken token = new LoxToken(this.getTokenType(), lexeme, literal);
             return Optional.of(token);
         }
         
@@ -29,7 +30,7 @@ public abstract class AbstractTokenPattern<TokenTypes> {
     }
 
     abstract protected String getRegex();
-    abstract protected TokenTypes getTokenType();
+    abstract protected LoxTokenType getTokenType();
     abstract protected String getLexeme (Matcher matcher);
     abstract protected Object getLiteral (String lexeme);
 } 

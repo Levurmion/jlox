@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 
 import com.lox.lexer.token_pattern.AbstractTokenPattern;
 
-public abstract class LoxTokenPattern extends AbstractTokenPattern<LoxTokenType> {
+public abstract class LoxTokenPattern extends AbstractTokenPattern {
 
     @Override
     protected String getLexeme (Matcher matcher) {

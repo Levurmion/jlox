@@ -4,7 +4,7 @@ import com.lox.lexer.lox.LoxToken;
 
 public abstract class Expr extends AstNode {
     
-    static class Binary extends Expr {
+    public static class Binary extends Expr {
         final public Expr left;
         final public Expr right;
         final public LoxToken operator;
@@ -14,9 +14,14 @@ public abstract class Expr extends AstNode {
             this.right = right;
             this.operator = operator;
         }
+
+        @Override
+        public String toString () {
+            return ("{ left: " + this.left + ", operator: " + this.operator.literal + ", right: " + this.right + "}");
+        }
     }
 
-    static class Unary extends Expr {
+    public static class Unary extends Expr {
         final public LoxToken operator;
         final public Expr right;
 
@@ -24,13 +29,23 @@ public abstract class Expr extends AstNode {
             this.operator = operator;
             this.right = right;
         }
+
+        @Override
+        public String toString () {
+            return ("{ operator: " + this.operator.literal + ", right: " + this.right + "}");
+        }
     }
 
-    static class Literal extends Expr {
-        final public Object literal;
+    public static class Literal extends Expr {
+        final public LoxToken literal;
 
-        public Literal(Object literal) {
+        public Literal(LoxToken literal) {
             this.literal = literal;
+        }
+
+        @Override
+        public String toString () {
+            return this.literal.lexeme;
         }
     }
 }

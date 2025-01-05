@@ -1,18 +1,35 @@
 package com.lox.parser;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
-import com.lox.lexer.Token;
+import com.lox.lexer.lox.LoxToken;
 import com.lox.lexer.lox.LoxTokenType;
+import com.lox.parser.ast.AstNode;
+import com.lox.parser.exceptions.ParsingException;
 
 public class Parser {
 
-    final private ArrayList<Token<LoxTokenType>> tokenStream;
+    final private ArrayList<LoxToken> tokenStream;
+    final private Grammar grammar;
+    public AstNode ast;
     private int curr = 0;
 
-    public Parser(ArrayList<Token<LoxTokenType>> tokenStream) {
+    public Parser(ArrayList<LoxToken> tokenStream, Grammar grammar) {
         this.tokenStream = tokenStream;
+        this.grammar = grammar;
+    }
+
+    public void parse() {
+        Context ctx = new Context();
+        try {
+            this.ast = grammar.start(ctx);
+
+            if (this.peek().type != LoxTokenType.EOF) {
+                throw new ParsingException("incomplete parse");
+            }
+        } catch (ParsingException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private boolean isAtEnd () {
@@ -25,17 +42,13 @@ public class Parser {
 
     private boolean check (LoxTokenType tokenType) {
         var currToken = this.peek();
-        if (currToken.isPresent()) {
-            return currToken.get().type == tokenType;
-        } else {
-            return false;
-        }
+        return currToken.type == tokenType;
     }
 
-    private Optional<Token<LoxTokenType>> peek () {
-        if (this.isAtEnd()) return Optional.empty();
+    private LoxToken peek () {
+        if (this.isAtEnd()) return this.tokenStream.getLast();
         else {
-            return Optional.of(this.tokenStream.get(this.curr));
+            return this.tokenStream.get(this.curr);
         }
     }
 
@@ -72,18 +85,18 @@ public class Parser {
         /**
          * Get the token that was last matched by the parser.
          */
-        public Optional<Token<LoxTokenType>> getLastMatchedToken () {
+        public LoxToken getLastMatchedToken () {
             if (curr == 0) {
-                return Optional.empty();
+                return null;
             } else {
-                return Optional.of(tokenStream.get(curr - 1));
+                return tokenStream.get(curr - 1);
             }
         }
 
         /**
          * Returns a token at the current position.
          */
-        public Optional<Token<LoxTokenType>> getCurrToken () {
+        public LoxToken getCurrToken () {
             return peek();
         }
     }

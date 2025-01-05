@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.lox.lexer.Token;
 import com.lox.lexer.exceptions.InvalidTokenException;
 
 public class LoxLexer {
@@ -16,7 +15,7 @@ public class LoxLexer {
     final private Pattern newlinePattern = Pattern.compile("^(\\n|\\r)");
     final private Pattern whitespacePattern = Pattern.compile("^\\s");
 
-    public ArrayList<Token<LoxTokenType>> tokens = new ArrayList<>();
+    public ArrayList<LoxToken> tokens = new ArrayList<>();
 
     final private LoxTokenPattern[] patterns = {
         // match single-character tokens first
@@ -73,9 +72,9 @@ public class LoxLexer {
         this.source = source;
     }
 
-    private Token<LoxTokenType> scanToken (String currSource) throws InvalidTokenException {
+    private LoxToken scanToken (String currSource) throws InvalidTokenException {
         for (LoxTokenPattern pattern : this.patterns) {
-            Optional<Token<LoxTokenType>> result = pattern.match(currSource);
+            Optional<LoxToken> result = pattern.match(currSource);
             if (result.isPresent()) {
                 return result.get();
             }
@@ -110,7 +109,7 @@ public class LoxLexer {
             } 
             
             try {
-                Token<LoxTokenType> token = this.scanToken(currSource);
+                LoxToken token = this.scanToken(currSource);
                 this.col += token.lexeme.length();
                 this.current += token.lexeme.length();
                 token.setLine(line);
@@ -123,7 +122,7 @@ public class LoxLexer {
         }
 
         // add EOF token to end of input
-        tokens.add(new Token<>(
+        tokens.add(new LoxToken(
             LoxTokenType.EOF, 
             "$", 
             "$"
