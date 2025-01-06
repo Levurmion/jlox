@@ -1,4 +1,4 @@
-package com.lox.lexer.lox;
+package com.lox.lexer;
 
 public enum LoxTokenType {
     // single char tokens

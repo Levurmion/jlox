@@ -1,20 +1,42 @@
-package com.lox.lexer.lox;
+package com.lox.lexer;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.lox.lexer.token_pattern.AbstractTokenPattern;
+public abstract class LoxTokenPattern {
 
-public abstract class LoxTokenPattern extends AbstractTokenPattern {
+    final private Pattern pattern;
+    private Matcher matcher;
 
-    @Override
+    public LoxTokenPattern () {
+        String regex = this.getRegex();
+        this.pattern = Pattern.compile(regex);
+    }
+    
+    public Optional<LoxToken> match(String source) {
+        this.matcher = this.pattern.matcher(source);
+        
+        if (this.matcher.find()) {
+            String lexeme = this.getLexeme(this.matcher);
+            Object literal = this.getLiteral(lexeme);
+            LoxToken token = new LoxToken(this.getTokenType(), lexeme, literal);
+            return Optional.of(token);
+        }
+        
+        return Optional.empty();
+    }
+    
     protected String getLexeme (Matcher matcher) {
         return matcher.group(1);
     }
-
-    @Override
+    
     protected Object getLiteral (String lexeme) {
         return lexeme;
     }
+
+    abstract protected String getRegex();
+    abstract protected LoxTokenType getTokenType();
 
     /**
      * Implementations of LoxTokenPattern declared as inner classes to avoid having

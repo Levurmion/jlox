@@ -1,8 +1,9 @@
 package com.lox;
 
-import com.lox.lexer.lox.LoxLexer;
-import com.lox.parser.Grammar;
-import com.lox.parser.Parser;
+import java.util.Scanner;
+
+import com.lox.parser.ast.AstNode;
+import com.lox.parser.exceptions.ParseError;
 
 /**
  * Hello world!
@@ -12,15 +13,24 @@ public class App
 {
     public static void main( String[] args )
     {   
-        String loxCode = """
-                1 == !!2 <= 4.5;
-                """;
-        LoxLexer lexer = new LoxLexer(loxCode);
-        lexer.tokenize();
+        System.out.println("Starting Lox REPL v0.1");
+        System.err.println("");
+        Scanner scanner = new Scanner(System.in);
 
-        Parser parser = new Parser(lexer.tokens, new Grammar());
-        parser.parse();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            scanner.close();
+        }));
 
-        System.err.println(parser.ast);
+        while (true) {
+            try {
+                System.out.print(">> ");
+                String source = scanner.nextLine();
+                Lox lox = new Lox();
+                AstNode loxAst = lox.parse(source);
+                System.out.println(loxAst);
+            } catch (ParseError e) {
+                System.err.println(e);
+            }
+        }
     }
 }

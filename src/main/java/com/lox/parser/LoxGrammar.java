@@ -1,21 +1,20 @@
 package com.lox.parser;
 
-import com.lox.lexer.lox.LoxTokenType;
+import com.lox.lexer.LoxTokenType;
 import com.lox.parser.ast.AstNode;
 import com.lox.parser.ast.Expr;
-import com.lox.parser.exceptions.ParsingException;
 
-public class Grammar {
+public class LoxGrammar implements LoxGrammarInterface {
 
-    public AstNode start (Parser.Context ctx) throws ParsingException {
+    public AstNode start (LoxParser.Context ctx) {
         return expression(ctx);
     }
 
-    private Expr expression (Parser.Context ctx) throws ParsingException {
+    private Expr expression (LoxParser.Context ctx) {
         return equality(ctx);
     }
     
-    private Expr equality (Parser.Context ctx) throws ParsingException {
+    private Expr equality (LoxParser.Context ctx) {
         Expr expr = comparison(ctx);
         while (ctx.match(LoxTokenType.BANG_EQUAL, LoxTokenType.EQUAL_EQUAL)) {
             var operator = ctx.getLastMatchedToken();
@@ -26,7 +25,7 @@ public class Grammar {
         return expr;
     }   
 
-    private Expr comparison (Parser.Context ctx) throws ParsingException {
+    private Expr comparison (LoxParser.Context ctx) {
         Expr expr = term(ctx);
         while (ctx.match(
             LoxTokenType.LESS, 
@@ -42,7 +41,7 @@ public class Grammar {
         return expr;
     }
 
-    private Expr term (Parser.Context ctx) throws ParsingException {
+    private Expr term (LoxParser.Context ctx) {
         Expr expr = factor(ctx);
         while (ctx.match(LoxTokenType.MINUS, LoxTokenType.PLUS)) {
             var operator = ctx.getLastMatchedToken();
@@ -53,7 +52,7 @@ public class Grammar {
         return expr;
     }
 
-    private Expr factor (Parser.Context ctx) throws ParsingException {
+    private Expr factor (LoxParser.Context ctx) {
         Expr expr = unary(ctx);
         while (ctx.match(LoxTokenType.STAR, LoxTokenType.SLASH)) {
             var operator = ctx.getLastMatchedToken();
@@ -64,7 +63,7 @@ public class Grammar {
         return expr;
     }
 
-    private Expr unary (Parser.Context ctx) throws ParsingException {
+    private Expr unary (LoxParser.Context ctx) {
         if (ctx.match(LoxTokenType.MINUS, LoxTokenType.BANG)) {
             var operator = ctx.getLastMatchedToken();
             Expr right = unary(ctx);
@@ -74,7 +73,7 @@ public class Grammar {
         }
     }
 
-    private Expr primary (Parser.Context ctx) throws ParsingException {
+    private Expr primary (LoxParser.Context ctx) {
         if (ctx.match(
             LoxTokenType.NUMBER,
             LoxTokenType.STRING,
@@ -86,14 +85,10 @@ public class Grammar {
 
         } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
             Expr expression = expression(ctx);
-            
-            if (ctx.match(LoxTokenType.RIGHT_PAREN)) {
-                return expression;
-            } else {
-                throw new ParsingException(ctx.getCurrToken());
-            }
+            ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected closing \")\" after a nested expression");
+            return expression;
         }
 
-        throw new ParsingException(ctx.getCurrToken());
+        throw ctx.error(ctx.getCurrToken(), "expected an expression");
     }
 }

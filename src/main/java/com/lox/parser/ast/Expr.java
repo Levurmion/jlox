@@ -1,6 +1,6 @@
 package com.lox.parser.ast;
 
-import com.lox.lexer.lox.LoxToken;
+import com.lox.lexer.LoxToken;
 
 public abstract class Expr extends AstNode {
     

@@ -1,4 +1,4 @@
-package com.lox.lexer.lox;
+package com.lox.lexer;
 
 import java.util.ArrayList;
 import java.util.Optional;
