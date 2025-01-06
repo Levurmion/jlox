@@ -320,7 +320,7 @@ public abstract class LoxTokenPattern {
     static public class NumberLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(-?\\d+(\\.\\d+)?)";
+            return "^(\\d+(\\.\\d+)?)";
         }
 
         @Override

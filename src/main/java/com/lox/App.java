@@ -2,9 +2,6 @@ package com.lox;
 
 import java.util.Scanner;
 
-import com.lox.parser.ast.AstNode;
-import com.lox.parser.exceptions.ParseError;
-
 /**
  * Hello world!
  *
@@ -20,15 +17,16 @@ public class App
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             scanner.close();
         }));
+        Lox lox = new Lox();
 
         while (true) {
             try {
                 System.out.print(">> ");
                 String source = scanner.nextLine();
-                Lox lox = new Lox();
-                AstNode loxAst = lox.parse(source);
-                System.out.println(loxAst);
-            } catch (ParseError e) {
+                lox.parse(source);
+                Object result = lox.eval();
+                System.out.println(result);
+            } catch (Exception e) {
                 System.err.println(e);
             }
         }

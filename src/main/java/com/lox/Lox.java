@@ -1,20 +1,22 @@
 package com.lox;
 
+import com.lox.interfaces.AstNodeInterface;
+import com.lox.interpreter.LoxInterpreter;
 import com.lox.lexer.LoxLexer;
 import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
 import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
-import com.lox.parser.ast.AstNode;
 
 public class Lox {
 
     private LoxLexer lexer;
     private LoxParser parser;
+    final private LoxInterpreter interpreter = new LoxInterpreter();
 
     public Lox() {}
 
-    public AstNode parse (String source) {
+    public AstNodeInterface parse (String source) {
         this.lexer = new LoxLexer(source);
         lexer.tokenize();
 
@@ -22,6 +24,14 @@ public class Lox {
         this.parser.parse();
 
         return this.parser.ast;
+    }
+
+    public Object eval () {
+        if (this.parser.ast == null) {
+            return null;
+        } else {
+            return this.interpreter.interpret(this.parser.ast);
+        }
     }
 
     public static void report (Object... args) {

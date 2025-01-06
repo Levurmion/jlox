@@ -1,12 +1,12 @@
 package com.lox.parser;
 
+import com.lox.interfaces.AstNodeInterface;
 import com.lox.lexer.LoxTokenType;
-import com.lox.parser.ast.AstNode;
 import com.lox.parser.ast.Expr;
 
 public class LoxGrammar implements LoxGrammarInterface {
 
-    public AstNode start (LoxParser.Context ctx) {
+    public AstNodeInterface start (LoxParser.Context ctx) {
         return expression(ctx);
     }
 
@@ -86,7 +86,7 @@ public class LoxGrammar implements LoxGrammarInterface {
         } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
             Expr expression = expression(ctx);
             ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected closing \")\" after a nested expression");
-            return expression;
+            return new Expr.Grouping(expression);
         }
 
         throw ctx.error(ctx.getCurrToken(), "expected an expression");

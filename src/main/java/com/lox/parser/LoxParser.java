@@ -3,16 +3,16 @@ package com.lox.parser;
 import java.util.ArrayList;
 
 import com.lox.Lox;
+import com.lox.interfaces.AstNodeInterface;
 import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
-import com.lox.parser.ast.AstNode;
 import com.lox.parser.exceptions.ParseError;
 
 public class LoxParser {
 
     final private ArrayList<LoxToken> tokenStream;
     final private LoxGrammarInterface grammar;
-    public AstNode ast = null;
+    public AstNodeInterface ast = null;
     private int curr = 0;
 
     public LoxParser(ArrayList<LoxToken> tokenStream, LoxGrammarInterface grammar) {
@@ -93,7 +93,7 @@ public class LoxParser {
 
     public void parse() {
         Context ctx = new Context();
-        AstNode ast = grammar.start(ctx);
+        AstNodeInterface ast = grammar.start(ctx);
         if (this.peek().type != LoxTokenType.EOF) {
             Lox.error(this.peek(), "incomplete parse");
             throw new ParseError();
@@ -119,6 +119,36 @@ public class LoxParser {
         if (this.isAtEnd()) return this.tokenStream.getLast();
         else {
             return this.tokenStream.get(this.curr);
+        }
+    }
+
+    private LoxToken peekPrevious () {
+        if (this.curr == 0) return null;
+        else {
+            return this.tokenStream.get(this.curr - 1);
+        }
+    }
+
+    private void synchronize () {
+        // skip the current erroneous token
+        this.advance();
+
+        while (!this.isAtEnd()) {
+            // discard tokens until the next statement boundary (demarcated by SEMICOLON)
+            if (this.peekPrevious().type == LoxTokenType.SEMICOLON) return;
+
+            switch (this.peek().type) {
+                case CLASS:
+                case FUN:
+                case FOR:
+                case WHILE:
+                case IF:
+                case ELSE:
+                case VAR:
+                case PRINT:
+            }
+
+            this.advance();
         }
     }
 

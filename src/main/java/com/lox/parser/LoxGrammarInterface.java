@@ -1,7 +1,7 @@
 package com.lox.parser;
 
-import com.lox.parser.ast.AstNode;
+import com.lox.interfaces.AstNodeInterface;
 
 public interface LoxGrammarInterface {
-    public AstNode start (LoxParser.Context ctx);
+    public AstNodeInterface start (LoxParser.Context ctx);
 }
