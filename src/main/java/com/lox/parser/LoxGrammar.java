@@ -3,6 +3,7 @@ package com.lox.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
 import com.lox.parser.ast.Expr;
 import com.lox.parser.ast.Stmt;
@@ -12,23 +13,62 @@ public class LoxGrammar {
     public List<Stmt> start (LoxParser.Context ctx) {
         List<Stmt> statements = new ArrayList<>();
         while (!ctx.isAtEnd()) {
-            statements.add(this.statement(ctx));
+            statements.add(this.declaration(ctx));
         }
         
         return statements;
     }
 
+    private Stmt declaration (LoxParser.Context ctx) {
+        Stmt stmt = null;
+        if (ctx.lookahead(LoxTokenType.VAR)) {
+            stmt = this.varDeclStmt(ctx);
+        } else {
+            stmt = this.statement(ctx);
+        }
+
+        if (stmt == null) {
+            throw ctx.error(ctx.getLastMatchedToken(), "invalid declaration");
+        } else {
+            ctx.matchOrThrow(LoxTokenType.SEMICOLON, "expected ';' after statements");
+            return stmt;
+        }
+    }
+
     private Stmt statement (LoxParser.Context ctx) {
-        if (ctx.lookahead(LoxTokenType.PRINT)) {
+        if (ctx.lookahead(LoxTokenType.IDENTIFIER)) {
+            return this.varReassignmentStmt(ctx);
+        } else if (ctx.lookahead(LoxTokenType.PRINT)) {
             return this.printStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
         }
     }
 
+    private Stmt varDeclStmt (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.VAR);
+        ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable");
+        LoxToken identifier = ctx.getLastMatchedToken();
+        if (ctx.match(LoxTokenType.EQUAL)) {
+            // expecting a right-hand expression
+            Expr expr = this.expression(ctx);
+            return new Stmt.VarDeclStmt(identifier, expr);
+        } else {
+            // an uninitialized variable declaration
+            return new Stmt.VarDeclStmt(identifier);
+        }
+    }
+
+    private Stmt varReassignmentStmt (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.IDENTIFIER);
+        LoxToken identifier = ctx.getLastMatchedToken();
+        ctx.matchOrThrow(LoxTokenType.EQUAL, "expected an expression");
+        Expr expr = this.expression(ctx);
+        return new Stmt.VarReassignmentStmt(identifier, expr);
+    }
+
     private Stmt expressionStatement (LoxParser.Context ctx) {
         Expr expression = this.expression(ctx);
-        ctx.matchOrThrow(ctx.getCurrToken().type, "expected ';' after a statement");
 
         return new Stmt.ExpressionStmt(expression);
     }
@@ -36,7 +76,6 @@ public class LoxGrammar {
     private Stmt printStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.PRINT);
         Expr expression = this.expression(ctx);
-        ctx.matchOrThrow(ctx.getCurrToken().type, "expected ';' after a statement");
 
         return new Stmt.PrintStmt(expression);
     }
@@ -110,7 +149,8 @@ public class LoxGrammar {
             LoxTokenType.STRING,
             LoxTokenType.TRUE,
             LoxTokenType.FALSE,
-            LoxTokenType.NIL
+            LoxTokenType.NIL,
+            LoxTokenType.IDENTIFIER
         )) {
             return new Expr.Literal(ctx.getLastMatchedToken()); 
 
