@@ -2,13 +2,10 @@ package com.lox;
 
 import java.util.Scanner;
 
+import com.lox.interpreter.LoxInterpreter;
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.parser.exceptions.ParseError;
 
-/**
- * Hello world!
- *
- */
 public class App
 {
     public static void main( String[] args )
@@ -20,7 +17,7 @@ public class App
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             scanner.close();
         }));
-        Lox lox = new Lox();
+        LoxInterpreter interpreter = new LoxInterpreter();
 
         while (true) {
             try {
@@ -33,8 +30,7 @@ public class App
                     break;
                 }
 
-                lox.parse(source);
-                Object result = lox.eval();
+                Object result = interpreter.interpret(source);
                 System.out.println(result);
             } catch (RuntimeError e) {
                 System.err.println(e.token);
