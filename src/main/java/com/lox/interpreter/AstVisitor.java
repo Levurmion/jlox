@@ -1,13 +1,26 @@
 package com.lox.interpreter;
 
-import com.lox.Lox;
 import com.lox.interfaces.VisitorInterface;
-import com.lox.interpreter.exceptions.SyntaxError;
+import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.lexer.LoxToken;
 import com.lox.parser.ast.Expr;
-import com.lox.parser.exceptions.ParseError;
 
 public class AstVisitor implements VisitorInterface {
+    
+    // ===== HELPER METHODS =====
+
+    private boolean isTruthy (Object obj) {
+        if (obj == null) return false;
+        else if (obj instanceof Boolean) return (boolean)obj;
+        return true;
+    }
+
+    private boolean isEqual (Object left, Object right) {
+        if (left == null && right == null) return true;
+        else if (left == null) return false;
+
+        return left.equals(right);
+    }
 
     private boolean isString (Object... objs) {
         for (var obj : objs) {
@@ -18,7 +31,7 @@ public class AstVisitor implements VisitorInterface {
         return true;
     }
 
-    private boolean isDouble (Object... objs) {
+    private boolean isNumber (Object... objs) {
         for (var obj : objs) {
             if (!(obj instanceof Double)) {
                 return false;
@@ -27,18 +40,27 @@ public class AstVisitor implements VisitorInterface {
         return true;
     }
 
-    private boolean isBoolean (Object... objs) {
-        for (var obj : objs) {
-            if (!(obj instanceof Boolean)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private Object evaluate (Expr expression) {
         return expression.accept(this);
     }
+
+    // ===== RUNTIME TYPE GUARDS =====
+    private boolean assertNumberOperands (LoxToken operator, Object left, Object right) {
+        if (!this.isNumber(left, right)) {
+            throw new RuntimeError(operator, "operands must be of type: 'Number'");
+        }
+        return true;
+    }
+
+    private boolean assertNumberOperand (LoxToken operator, Object right) {
+        if (!this.isNumber(right)) {
+            throw new RuntimeError(operator, "operand must be of type: 'Number'");
+        }
+        return true;
+    }
+
+    // ===== VISITOR METHODS =====
 
     public Object visitGroupingExpr (Expr.Grouping group) {
         return this.evaluate(group.expression);
@@ -51,57 +73,62 @@ public class AstVisitor implements VisitorInterface {
 
         Object result = null;
         switch (operator.type) {
-            case PLUS:
+            case PLUS: {
                 if (this.isString(left, right)) {
                     result = (String)left + (String)right;
-                } else if (this.isDouble(left, right)) {
+                } else if (this.isNumber(left, right)) {
                     result = (Double)left + (Double)right;
-                }
-                break;
-            case MINUS:
-                if (this.isDouble(left, right)) {
-                    result = (Double)left - (Double)right;
-                }
-                break;
-            case STAR:
-                if (this.isDouble(left, right)) {
-                    result = (Double)left * (Double)right;
-                }
-                break;
-            case SLASH:
-                if (this.isDouble(left, right)) {
-                    result = (Double)left / (Double)right;
-                }
-                break;
-            case EQUAL_EQUAL:
-                if (this.isDouble(left, right)) {
-                    result = ((Double)left).equals((Double)right);
-                } else if (this.isString(left, right)) {
-                    result = ((String)left).equals((String)right);
-                } else if (this.isBoolean(left, right)) {
-                    result = ((Boolean)left).equals((Boolean)right);
                 } else {
-                    result = left == right;
+                    throw new RuntimeError(operator, "operands must be of type: 'String' or 'Number'");
                 }
                 break;
-            case BANG_EQUAL:
-            if (this.isDouble(left, right)) {
-                result = !((Double)left).equals((Double)right);
-            } else if (this.isString(left, right)) {
-                result = !((String)left).equals((String)right);
-            } else if (this.isBoolean(left, right)) {
-                result = !((Boolean)left).equals((Boolean)right);
-            } else {
-                result = left == right;
             }
+            case MINUS:{
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left - (Double)right;
                 break;
-            default:
-                Lox.error(operator, "invalid binary operator");
-        }
-
-        if (result == null) {
-            Lox.error(operator, "left (" + left +") and right (" + right + ") operands are incompatible");
-            throw new SyntaxError();
+            }
+            case STAR: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left * (Double)right;
+                break;
+            }
+            case SLASH: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left / (Double)right;
+                break;
+            }
+            case LESS: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left < (Double)right;
+                break;
+            }
+            case GREATER: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left > (Double)right;
+                break;
+            }
+            case LESS_EQUAL: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left <= (Double)right;
+                break;
+            }
+            case GREATER_EQUAL: {
+                this.assertNumberOperands(operator, left, right);
+                result = (Double)left >= (Double)right;
+                break;
+            }
+            case EQUAL_EQUAL: {
+                result = this.isEqual(left, right);
+                break;
+            }
+            case BANG_EQUAL: {
+                result = !this.isEqual(left, right);
+                break;
+            }
+            default: {
+                throw new RuntimeError(operator, "invalid binary operator");
+            }
         }
 
         return result;
@@ -114,22 +141,14 @@ public class AstVisitor implements VisitorInterface {
         Object result = null;
         switch (operator.type) {
             case MINUS:
-                if (this.isDouble(right)) {
-                    result = -(Double)right;
-                }
+                this.assertNumberOperand(operator, right);
+                result = -(Double)right;                
                 break;
             case BANG:
-                if (this.isBoolean(right)) {
-                    result = !(boolean)right;
-                }
+                result = !(this.isTruthy(right));
                 break;
             default:
-                Lox.error(operator, "invalid unary operator");
-        }
-
-        if (result == null) {
-            Lox.error(operator, "unary operator cannot act on datatype" + right.getClass().getName());
-            throw new ParseError();
+                throw new RuntimeError(operator, "invalid unary operator");
         }
 
         return result;

@@ -2,6 +2,9 @@ package com.lox;
 
 import java.util.Scanner;
 
+import com.lox.interpreter.exceptions.RuntimeError;
+import com.lox.parser.exceptions.ParseError;
+
 /**
  * Hello world!
  *
@@ -23,12 +26,25 @@ public class App
             try {
                 System.out.print(">> ");
                 String source = scanner.nextLine();
+
+                if (source.equals("exit")) {
+                    scanner.close();
+                    System.err.println("Exiting REPL\n");
+                    break;
+                }
+
                 lox.parse(source);
                 Object result = lox.eval();
                 System.out.println(result);
-            } catch (Exception e) {
+            } catch (RuntimeError e) {
+                System.err.println(e.token);
+                System.err.println(e.getMessage());
+            } catch (ParseError e) {
                 System.err.println(e);
-            }
+            } catch (Exception e) {
+                scanner.close();
+                throw e;
+            } 
         }
     }
 }
