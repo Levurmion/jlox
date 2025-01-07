@@ -1,18 +1,19 @@
 package com.lox.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.lox.Lox;
 import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
-import com.lox.parser.ast.Expr;
+import com.lox.parser.ast.Stmt;
 import com.lox.parser.exceptions.ParseError;
 
 public class LoxParser {
 
     final private ArrayList<LoxToken> tokenStream;
     final private LoxGrammar grammar;
-    public Expr ast = null;
+    public List<Stmt> program = new ArrayList<>();
     private int curr = 0;
 
     public LoxParser(ArrayList<LoxToken> tokenStream, LoxGrammar grammar) {
@@ -85,6 +86,10 @@ public class LoxParser {
             return peek();
         }
         
+        public boolean isAtEnd () {
+            return isEOF();
+        }
+        
         public ParseError error (LoxToken token, String message) {
             Lox.error(token, message);
             return new ParseError();
@@ -93,17 +98,21 @@ public class LoxParser {
 
     public void parse() {
         Context ctx = new Context();
-        Expr ast = grammar.start(ctx);
+        List<Stmt> program = grammar.start(ctx);
         if (this.peek().type != LoxTokenType.EOF) {
             Lox.error(this.peek(), "incomplete parse");
             throw new ParseError();
         } else {
-            this.ast = ast;
+            this.program = program;
         }
     }
 
-    private boolean isAtEnd () {
-        return this.tokenStream.get(this.curr).type == LoxTokenType.EOF;
+    private boolean isEOF () {
+        if (this.curr <= this.tokenStream.size() - 1) {
+            return this.tokenStream.get(this.curr).type == LoxTokenType.EOF;
+        }
+        Lox.report("unterminated program: statements likely missing a trailing ';'");
+        throw new ParseError();
     }
 
     private void advance () {
@@ -116,7 +125,7 @@ public class LoxParser {
     }
 
     private LoxToken peek () {
-        if (this.isAtEnd()) return this.tokenStream.getLast();
+        if (this.isEOF()) return this.tokenStream.getLast();
         else {
             return this.tokenStream.get(this.curr);
         }
@@ -133,7 +142,7 @@ public class LoxParser {
         // skip the current erroneous token
         this.advance();
 
-        while (!this.isAtEnd()) {
+        while (!this.isEOF()) {
             // discard tokens until the next statement boundary (demarcated by SEMICOLON)
             if (this.peekPrevious().type == LoxTokenType.SEMICOLON) return;
 

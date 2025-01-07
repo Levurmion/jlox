@@ -1,12 +1,44 @@
 package com.lox.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.lox.lexer.LoxTokenType;
 import com.lox.parser.ast.Expr;
+import com.lox.parser.ast.Stmt;
 
 public class LoxGrammar {
 
-    public Expr start (LoxParser.Context ctx) {
-        return expression(ctx);
+    public List<Stmt> start (LoxParser.Context ctx) {
+        List<Stmt> statements = new ArrayList<>();
+        while (!ctx.isAtEnd()) {
+            statements.add(this.statement(ctx));
+        }
+        
+        return statements;
+    }
+
+    private Stmt statement (LoxParser.Context ctx) {
+        if (ctx.lookahead(LoxTokenType.PRINT)) {
+            return this.printStatement(ctx);
+        } else {
+            return this.expressionStatement(ctx);
+        }
+    }
+
+    private Stmt expressionStatement (LoxParser.Context ctx) {
+        Expr expression = this.expression(ctx);
+        ctx.matchOrThrow(ctx.getCurrToken().type, "expected ';' after a statement");
+
+        return new Stmt.ExpressionStmt(expression);
+    }
+
+    private Stmt printStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.PRINT);
+        Expr expression = this.expression(ctx);
+        ctx.matchOrThrow(ctx.getCurrToken().type, "expected ';' after a statement");
+
+        return new Stmt.PrintStmt(expression);
     }
 
     private Expr expression (LoxParser.Context ctx) {

@@ -30,8 +30,7 @@ public class App
                     break;
                 }
 
-                Object result = interpreter.interpret(source);
-                System.out.println(result);
+                interpreter.interpret(source);
             } catch (RuntimeError e) {
                 System.err.println(e.token);
                 System.err.println(e.getMessage());

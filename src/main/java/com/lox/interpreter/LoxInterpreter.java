@@ -7,26 +7,48 @@ import com.lox.lexer.LoxToken;
 import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
 import com.lox.parser.ast.Expr;
+import com.lox.parser.ast.Stmt;
 
-public class LoxInterpreter implements Expr.Visitor<Object> {
+public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private LoxLexer lexer;
     private LoxParser parser;
     
-    public Object interpret (String source) {
+    public void interpret (String source) {
         this.lexer = new LoxLexer(source);
         this.lexer.tokenize();
 
         this.parser = new LoxParser(this.lexer.tokens, new LoxGrammar());
         this.parser.parse();
 
-        return this.evaluate(this.parser.ast);
+        for (var statement : this.parser.program) {
+            this.execute(statement);
+        }
+    }
+
+    private Void execute (Stmt statement) {
+        statement.accept(this);
+        return null;
     }
 
     private Object evaluate (Expr expression) {
         return expression.accept(this);
     }
 
-    // ===== VISITOR METHODS =====
+    // ===== STATEMENT VISITOR METHODS =====
+
+    @Override
+    public Void visitExpressionStmt (Stmt.ExpressionStmt exprStmt) {
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt (Stmt.PrintStmt printStmt) {
+        Object expressionValue = this.evaluate(printStmt.expression);
+        System.out.println(expressionValue);
+        return null;
+    }
+
+    // ===== EXPRESSION VISITOR METHODS =====
 
     @Override
     public Object visitGroupingExpr (Expr.Grouping group) {

@@ -2,9 +2,8 @@ package com.lox.parser.ast;
 
 public abstract class Stmt {
     public static interface Visitor<R> {
-        public R visitStmt (Stmt stmt);
-        public R visitExpressionStmt (Stmt stmt);
-        public R visitPrintStmt (Stmt stmt);
+        public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
+        public R visitPrintStmt (Stmt.PrintStmt stmt);
     }
 
     public abstract <R> R accept (Stmt.Visitor<R> visitor);
