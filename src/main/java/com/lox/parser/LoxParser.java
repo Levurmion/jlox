@@ -3,19 +3,19 @@ package com.lox.parser;
 import java.util.ArrayList;
 
 import com.lox.Lox;
-import com.lox.interfaces.AstNodeInterface;
 import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
+import com.lox.parser.ast.Expr;
 import com.lox.parser.exceptions.ParseError;
 
 public class LoxParser {
 
     final private ArrayList<LoxToken> tokenStream;
-    final private LoxGrammarInterface grammar;
-    public AstNodeInterface ast = null;
+    final private LoxGrammar grammar;
+    public Expr ast = null;
     private int curr = 0;
 
-    public LoxParser(ArrayList<LoxToken> tokenStream, LoxGrammarInterface grammar) {
+    public LoxParser(ArrayList<LoxToken> tokenStream, LoxGrammar grammar) {
         this.tokenStream = tokenStream;
         this.grammar = grammar;
     }
@@ -93,7 +93,7 @@ public class LoxParser {
 
     public void parse() {
         Context ctx = new Context();
-        AstNodeInterface ast = grammar.start(ctx);
+        Expr ast = grammar.start(ctx);
         if (this.peek().type != LoxTokenType.EOF) {
             Lox.error(this.peek(), "incomplete parse");
             throw new ParseError();
@@ -103,7 +103,7 @@ public class LoxParser {
     }
 
     private boolean isAtEnd () {
-        return this.curr >= this.tokenStream.size();
+        return this.tokenStream.get(this.curr).type == LoxTokenType.EOF;
     }
 
     private void advance () {

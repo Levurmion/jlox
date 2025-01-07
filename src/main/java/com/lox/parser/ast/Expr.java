@@ -1,10 +1,16 @@
 package com.lox.parser.ast;
 
-import com.lox.interfaces.AstNodeInterface;
-import com.lox.interpreter.AstVisitor;
 import com.lox.lexer.LoxToken;
 
-public abstract class Expr implements AstNodeInterface {
+public abstract class Expr {
+    public static interface Visitor<R> {
+        public R visitGroupingExpr(Expr.Grouping expr);
+        public R visitBinaryExpr(Expr.Binary expr);
+        public R visitUnaryExpr(Expr.Unary expr);
+        public R visitLiteralExpr(Expr.Literal expr);
+    }
+
+    public abstract <R> R accept (Expr.Visitor<R> visitor);
 
     public static class Grouping extends Expr {
         final public Expr expression;
@@ -12,9 +18,9 @@ public abstract class Expr implements AstNodeInterface {
         public Grouping(Expr expression) {
             this.expression = expression;
         }
-
+        
         @Override
-        public Object accept (AstVisitor visitor) {
+        public <R> R accept (Expr.Visitor<R> visitor) {
             return visitor.visitGroupingExpr(this);
         }
 
@@ -34,9 +40,9 @@ public abstract class Expr implements AstNodeInterface {
             this.right = right;
             this.operator = operator;
         }
-
+        
         @Override
-        public Object accept (AstVisitor visitor) {
+        public <R> R accept (Expr.Visitor<R> visitor) {
             return visitor.visitBinaryExpr(this);
         }
 
@@ -54,9 +60,9 @@ public abstract class Expr implements AstNodeInterface {
             this.operator = operator;
             this.right = right;
         }
-
+        
         @Override
-        public Object accept (AstVisitor visitor) {
+        public <R> R accept (Expr.Visitor<R> visitor) {
             return visitor.visitUnaryExpr(this);
         }
 
@@ -72,9 +78,9 @@ public abstract class Expr implements AstNodeInterface {
         public Literal(LoxToken token) {
             this.token = token;
         }
-
+        
         @Override
-        public Object accept (AstVisitor visitor) {
+        public <R> R accept (Expr.Visitor<R> visitor) {
             return visitor.visitLiteralExpr(this);
         } 
 

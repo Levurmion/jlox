@@ -1,12 +1,11 @@
 package com.lox.parser;
 
-import com.lox.interfaces.AstNodeInterface;
 import com.lox.lexer.LoxTokenType;
 import com.lox.parser.ast.Expr;
 
-public class LoxGrammar implements LoxGrammarInterface {
+public class LoxGrammar {
 
-    public AstNodeInterface start (LoxParser.Context ctx) {
+    public Expr start (LoxParser.Context ctx) {
         return expression(ctx);
     }
 
