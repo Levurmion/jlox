@@ -29,6 +29,8 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         this.parser = new LoxParser(this.lexer.tokens, new LoxGrammar());
         this.parser.parse();
 
+        System.out.println(this.parser.program);
+
         for (var statement : this.parser.program) {
             this.execute(statement);
         }
@@ -57,34 +59,36 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
         return null;
     }
-
-    @Override
-    public Void visitVarReassignmentStmt (Stmt.VarReassignmentStmt varReassignmentStmt) {
-        String identifier = (String)varReassignmentStmt.identifier.literal;
-        Expr expression = varReassignmentStmt.expression;
-        if (this.variables.containsKey(identifier)) {
-            this.variables.put(identifier, this.evaluate(expression));
-        } else {
-            throw new RuntimeError(varReassignmentStmt.identifier, "undeclared variable");
-        }
-
-        return null;
-    }
-
+    
     @Override
     public Void visitExpressionStmt (Stmt.ExpressionStmt exprStmt) {
+        this.evaluate(exprStmt.expression);
         return null;
     }
-
+    
     @Override
     public Void visitPrintStmt (Stmt.PrintStmt printStmt) {
         Object expressionValue = this.evaluate(printStmt.expression);
         System.out.println(expressionValue);
         return null;
     }
-
+    
     // ===== EXPRESSION VISITOR METHODS =====
 
+    @Override
+    public Object visitAssignmentExpr (Expr.Assignment assignment) {
+        String identifier = (String)assignment.identifier.literal;
+        Expr right = assignment.right;
+        Object rightValue = this.evaluate(right);
+        if (this.variables.containsKey(identifier)) {
+            this.variables.put(identifier, rightValue);
+        } else {
+            throw new RuntimeError(assignment.identifier, "undeclared variable");
+        }
+
+        return rightValue;
+    }
+    
     @Override
     public Object visitGroupingExpr (Expr.Grouping group) {
         return this.evaluate(group.expression);

@@ -36,9 +36,7 @@ public class LoxGrammar {
     }
 
     private Stmt statement (LoxParser.Context ctx) {
-        if (ctx.lookahead(LoxTokenType.IDENTIFIER)) {
-            return this.varReassignmentStmt(ctx);
-        } else if (ctx.lookahead(LoxTokenType.PRINT)) {
+        if (ctx.lookahead(LoxTokenType.PRINT)) {
             return this.printStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
@@ -47,7 +45,7 @@ public class LoxGrammar {
 
     private Stmt varDeclStmt (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.VAR);
-        ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable");
+        ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable name");
         LoxToken identifier = ctx.getLastMatchedToken();
         if (ctx.match(LoxTokenType.EQUAL)) {
             // expecting a right-hand expression
@@ -57,14 +55,6 @@ public class LoxGrammar {
             // an uninitialized variable declaration
             return new Stmt.VarDeclStmt(identifier);
         }
-    }
-
-    private Stmt varReassignmentStmt (LoxParser.Context ctx) {
-        ctx.match(LoxTokenType.IDENTIFIER);
-        LoxToken identifier = ctx.getLastMatchedToken();
-        ctx.matchOrThrow(LoxTokenType.EQUAL, "expected an expression");
-        Expr expr = this.expression(ctx);
-        return new Stmt.VarReassignmentStmt(identifier, expr);
     }
 
     private Stmt expressionStatement (LoxParser.Context ctx) {
@@ -81,7 +71,20 @@ public class LoxGrammar {
     }
 
     private Expr expression (LoxParser.Context ctx) {
-        return equality(ctx);
+        return assignment(ctx);
+    }
+
+    private Expr assignment (LoxParser.Context ctx) {
+        if (ctx.kLookahead(LoxTokenType.IDENTIFIER, LoxTokenType.EQUAL)) {
+            // expecting an assignment
+            ctx.match(LoxTokenType.IDENTIFIER);
+            LoxToken identifier = ctx.getLastMatchedToken();
+            ctx.match(LoxTokenType.EQUAL);
+            return new Expr.Assignment(identifier, assignment(ctx));
+        } else {
+            // expecting equality
+            return equality(ctx);
+        }
     }
     
     private Expr equality (LoxParser.Context ctx) {

@@ -4,6 +4,7 @@ import com.lox.lexer.LoxToken;
 
 public abstract class Expr {
     public static interface Visitor<R> {
+        public R visitAssignmentExpr(Expr.Assignment expr);
         public R visitGroupingExpr(Expr.Grouping expr);
         public R visitBinaryExpr(Expr.Binary expr);
         public R visitUnaryExpr(Expr.Unary expr);
@@ -11,6 +12,26 @@ public abstract class Expr {
     }
 
     public abstract <R> R accept (Expr.Visitor<R> visitor);
+
+    public static class Assignment extends Expr {
+        final public LoxToken identifier;
+        final public Expr right;
+
+        public Assignment(LoxToken identifier, Expr right) {
+            this.identifier = identifier;
+            this.right = right;
+        }
+
+        @Override
+        public <R> R accept (Expr.Visitor<R> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+
+        @Override
+        public String toString () {
+            return ("{ assign_id: " + this.identifier.literal + ", right: " + this.right.toString() + " }");
+        }
+    }
 
     public static class Grouping extends Expr {
         final public Expr expression;
@@ -48,7 +69,7 @@ public abstract class Expr {
 
         @Override
         public String toString () {
-            return ("{ left: " + this.left + ", operator: " + this.operator.literal + ", right: " + this.right + "}");
+            return ("{ left: " + this.left + ", operator: " + this.operator.literal + ", right: " + this.right + " }");
         }
     }
 
@@ -68,7 +89,7 @@ public abstract class Expr {
 
         @Override
         public String toString () {
-            return ("{ operator: " + this.operator.literal + ", right: " + this.right + "}");
+            return ("{ operator: " + this.operator.literal + ", right: " + this.right + " }");
         }
     }
 

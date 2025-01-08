@@ -69,6 +69,20 @@ public class LoxParser {
         }
 
         /**
+         * Matches all k-lookahead tokens.
+         */
+        public boolean kLookahead (LoxTokenType... tokenTypes) {
+            for (int i = 0; i < tokenTypes.length; i++) {
+                var tokenType = tokenTypes[i];
+                var lookahead = tokenStream.get(curr + i);
+                if (tokenType != lookahead.type) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
          * Get the token that was last matched by the parser.
          */
         public LoxToken getLastMatchedToken () {

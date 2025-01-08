@@ -5,7 +5,6 @@ import com.lox.lexer.LoxToken;
 public abstract class Stmt {
     public static interface Visitor<R> {
         public R visitVarDeclStmt (Stmt.VarDeclStmt stmt);
-        public R visitVarReassignmentStmt (Stmt.VarReassignmentStmt stmt);
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
     }
@@ -29,21 +28,15 @@ public abstract class Stmt {
         @Override
         public <R> R accept (Stmt.Visitor<R> visitor) {
             return visitor.visitVarDeclStmt(this);
-        }   
-    }
-
-    public static class VarReassignmentStmt extends Stmt {
-        final public LoxToken identifier;
-        final public Expr expression;
-
-        public VarReassignmentStmt(LoxToken identifier, Expr expression) {
-            this.identifier = identifier;
-            this.expression = expression;
         }
 
         @Override
-        public <R> R accept (Stmt.Visitor<R> visitor) {
-            return visitor.visitVarReassignmentStmt(this);
+        public String toString () {
+            if (this.expression != null) {
+                return "( VAR_DECL: " + this.identifier.lexeme + ", expr: " + this.expression.toString() + " )";
+            } else {
+                return "( VAR_DECL: " + this.identifier.lexeme + ", expr: null )";
+            }
         }
     }
 
@@ -58,6 +51,11 @@ public abstract class Stmt {
         public <R> R accept (Stmt.Visitor<R> visitor) {
             return visitor.visitExpressionStmt(this);
         }
+
+        @Override
+        public String toString () {
+            return "( EXPR_STMT: " + this.expression.toString() + " )";
+        }
     }
 
     public static class PrintStmt extends Stmt {
@@ -70,6 +68,11 @@ public abstract class Stmt {
         @Override
         public <R> R accept (Stmt.Visitor<R> visitor) {
             return visitor.visitPrintStmt(this);
+        }
+
+        @Override
+        public String toString () {
+            return "( PRINT: " + this.expression.toString() + " )";
         }
     }
 }
