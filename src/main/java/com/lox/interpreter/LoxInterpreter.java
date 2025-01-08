@@ -1,7 +1,5 @@
 package com.lox.interpreter;
 
-import java.util.HashMap;
-
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.interpreter.helpers.ExprHelper;
 import com.lox.lexer.LoxLexer;
@@ -20,7 +18,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     public static final String UNINITIALIZED = "UNINITIALIZED";
 
     // interpreter states
-    final private HashMap<String, Object> variables = new HashMap<>();
+    final private Environment environment = new Environment();
     
     public void interpret (String source) {
         this.lexer = new LoxLexer(source);
@@ -49,14 +47,12 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
     @Override
     public Void visitVarDeclStmt (Stmt.VarDeclStmt varDeclStmt) {
-        String identifier = (String)varDeclStmt.identifier.literal;
         Expr expression = varDeclStmt.expression;
         if (expression == null) {
-            this.variables.put(identifier, LoxInterpreter.UNINITIALIZED);
+            this.environment.define(varDeclStmt.identifier);
         } else {
-            this.variables.put(identifier, this.evaluate(expression));
+            this.environment.define(varDeclStmt.identifier, this.evaluate(expression));
         }
-
         return null;
     }
     
@@ -77,14 +73,9 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
     @Override
     public Object visitAssignmentExpr (Expr.Assignment assignment) {
-        String identifier = (String)assignment.identifier.literal;
         Expr right = assignment.right;
         Object rightValue = this.evaluate(right);
-        if (this.variables.containsKey(identifier)) {
-            this.variables.put(identifier, rightValue);
-        } else {
-            throw new RuntimeError(assignment.identifier, "undeclared variable");
-        }
+        this.environment.assign(assignment.identifier, rightValue);
 
         return rightValue;
     }
@@ -187,17 +178,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     @Override
     public Object visitLiteralExpr (Expr.Literal literal) {
         if (literal.token.type == LoxTokenType.IDENTIFIER) {
-            String varName = (String)literal.token.literal;
-            if (this.variables.containsKey(varName)) {
-                Object varValue = this.variables.get(varName);
-                if (varValue == LoxInterpreter.UNINITIALIZED) {
-                    throw new RuntimeError(literal.token, "cannot access uninitialized variable");
-                } else {
-                    return varValue;
-                }
-            } else {
-                throw new RuntimeError(literal.token, "undeclared variable");
-            }
+            return this.environment.use(literal.token);
         }
         
         return literal.token.literal;
