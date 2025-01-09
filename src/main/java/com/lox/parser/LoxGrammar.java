@@ -55,6 +55,8 @@ public class LoxGrammar {
         }
     }
 
+    // ===== IF-ELSE CONTROL FLOW =====
+
     private Stmt ifStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.IF);
         ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected expression");
@@ -87,6 +89,8 @@ public class LoxGrammar {
         return new Stmt.IfStmt(elseIfCondition, elseIfStatement);
     }
 
+    // ===== KEYWORD DECLARATIONS =====
+
     private Stmt varDeclStmt (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.VAR);
         ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable name");
@@ -106,6 +110,16 @@ public class LoxGrammar {
         return varDeclStmt;
     }
 
+    private Stmt printStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.PRINT);
+        Expr expression = this.expression(ctx);
+        Stmt printStmt = new Stmt.PrintStmt(expression);
+        this.expectSemicolon(ctx);
+        return printStmt;
+    }
+
+    // ===== BLOCK STATEMENT =====
+
     private Stmt blockStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.LEFT_BRACE);
         List<Stmt> blockDeclarations = new ArrayList<>();
@@ -117,6 +131,8 @@ public class LoxGrammar {
         return new Stmt.BlockStmt(blockDeclarations);
     }
 
+    // ===== EXPRESSION STATEMENT =====
+
     private Stmt expressionStatement (LoxParser.Context ctx) {
         Expr expression = this.expression(ctx);
         Stmt expressionStmt = new Stmt.ExpressionStmt(expression);
@@ -124,13 +140,7 @@ public class LoxGrammar {
         return expressionStmt;
     }
 
-    private Stmt printStatement (LoxParser.Context ctx) {
-        ctx.match(LoxTokenType.PRINT);
-        Expr expression = this.expression(ctx);
-        Stmt printStmt = new Stmt.PrintStmt(expression);
-        this.expectSemicolon(ctx);
-        return printStmt;
-    }
+    // ===== EXPRESSIONS =====
 
     private Expr expression (LoxParser.Context ctx) {
         return assignment(ctx);
@@ -144,9 +154,31 @@ public class LoxGrammar {
             ctx.match(LoxTokenType.EQUAL);
             return new Expr.Assignment(identifier, assignment(ctx));
         } else {
-            // expecting equality
-            return equality(ctx);
+            // expecting logicOr
+            return logicOr(ctx);
         }
+    }
+
+    private Expr logicOr (LoxParser.Context ctx) {
+        Expr expr = logicAnd(ctx);
+        while (ctx.match(LoxTokenType.AND)) {
+            LoxToken operator = ctx.getLastMatchedToken();
+            Expr right = logicAnd(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr logicAnd (LoxParser.Context ctx) {
+        Expr expr = equality(ctx);
+        while (ctx.match(LoxTokenType.OR)) {
+            LoxToken operator = ctx.getLastMatchedToken();
+            Expr right = equality(ctx);
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
     }
     
     private Expr equality (LoxParser.Context ctx) {

@@ -5,27 +5,37 @@ The main purpose of statements is to execute a side effect that can be persisted
 
 ```
 <program>               -> <declaration>* "EOF"
-<declaration>           -> <var declaration> | <statement>
+<declaration>           -> <var_declaration> | <statement>
 
 // declarations
-<var declaration>       -> "var" ID [ "=" <expression statement> ]? ";"
+<var_declaration>       -> "var" ID [ "=" <expression_statement> ]? ";"
 
 // statements
-<statement>             -> <print statement> | <expression statement> | <if statement> | <block>
+<statement>             -> <print_statement> 
+                        | <expression_statement> 
+                        | <if_statement> 
+                        | <while_statement> 
+                        | <for_statement> 
+                        | <block>
 
 // keyword statements
-<print statement>       -> "print" <expression> ";"
+<print_statement>       -> "print" <expression> ";"
 
 // control flow statements
-<if statement>          -> "if" "(" <expression> ")" <statement> <else if statement>*
-<else if statement>     -> "else" "if" "(" <expression> ")" <statement> <else if statement> | <else statement>?
-<else statement>        -> "else" <statement>
+<if_statement>          -> "if" "(" <expression> ")" <statement> <else_if_statement>*
+<else_if_statement>     -> "else" "if" "(" <expression> ")" <statement> <else_if_statement> | <else_statement>?
+<else_statement>        -> "else" <statement>
+
+// loops
+<while_statement>       -> "while" "(" <expression> ")" <statement>
+<for_statement>         -> "for" "(" <for_initializer> <expression>? ";" <expression>? ")" <statement>
+<for_initializer>       -> <var_declaration> | <expression_statement> | ";"
 
 // blocks
 <block>                 -> "{" [ <declaration> ]* "}"
 
 // expression statement
-<expression statement>  -> <expression> ";"
+<expression_statement>  -> <expression> ";"
 ```
 
 ## Expressions
@@ -33,7 +43,9 @@ The evaluation of expression always yields a value.
 
 ```
 <expression>            -> <assignment>
-<assignment>            -> ID "=" <assignment> | <equality>
+<assignment>            -> ID "=" <assignment> | <logic_or>
+<logic_or>              -> <logic_and> [ "or" <logic_and> ]*
+<logic_and>             -> <equality> [ "and" <equality> ]*
 <equality>              -> <comparison> [[ "!=" | "==" ] <comparison> ]*
 <comparison>            -> <term> [[ "<" | ">" | "<=" | ">=" ] <term> ]*
 <term>                  -> <factor> [[ "-" | "+" ] <factor>]*

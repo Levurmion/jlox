@@ -23,7 +23,6 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     public void interpret (String source) {
         this.lexer = new LoxLexer(source);
         this.lexer.tokenize();
-
         this.parser = new LoxParser(this.lexer.tokens, new LoxGrammar());
         this.parser.parse();
 
@@ -140,7 +139,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
                 }
                 break;
             }
-            case MINUS:{
+            case MINUS: {
                 ExprHelper.assertNumberOperands(operator, left, right);
                 result = (Double)left - (Double)right;
                 break;
@@ -181,6 +180,14 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
             }
             case BANG_EQUAL: {
                 result = !ExprHelper.isEqual(left, right);
+                break;
+            }
+            case AND: {
+                result = ExprHelper.isTruthy(left) && ExprHelper.isTruthy(right);
+                break;
+            }
+            case OR: {
+                result = ExprHelper.isTruthy(left) || ExprHelper.isTruthy(right);
                 break;
             }
             default: {

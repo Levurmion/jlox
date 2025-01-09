@@ -30,15 +30,18 @@ public class App
 
                 String source = app.scanner.nextLine();
 
-                if (source.equals("exit()")) {
-                    app.scanner.close();
-                    System.out.println("Exiting REPL\n");
-                    break;
-                } else if (source.equals("run()")) {
-                    app.interpreter.interpretSource();
-                    System.out.println();
-                } else {
-                    app.interpreter.writeLine(source);
+                switch (source) {
+                    case "\\exit": {
+                        app.scanner.close();
+                        System.out.println("Exiting REPL\n");
+                        return;
+                    } case "\\run": {
+                        app.interpreter.interpretSource();
+                        System.out.println();
+                        break;
+                    } default: {
+                        app.interpreter.writeLine(source);
+                    }
                 }
 
             } catch (RuntimeError e) {
