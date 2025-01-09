@@ -1,5 +1,7 @@
 package com.lox.parser.ast;
 
+import java.util.List;
+
 import com.lox.lexer.LoxToken;
 
 public abstract class Stmt {
@@ -7,6 +9,7 @@ public abstract class Stmt {
         public R visitVarDeclStmt (Stmt.VarDeclStmt stmt);
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
+        public R visitBlockStmt (Stmt.BlockStmt stmt);
     }
 
     public abstract <R> R accept (Stmt.Visitor<R> visitor);
@@ -40,10 +43,28 @@ public abstract class Stmt {
         }
     }
 
+    public static class BlockStmt extends Stmt {
+        final public List<Stmt> declarations;
+
+        public BlockStmt (List<Stmt> declarations) {
+            this.declarations = declarations;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitBlockStmt(this);
+        }
+
+        @Override
+        public String toString () {
+            return "{ " + this.declarations.toString() + " }";
+        }
+    }
+
     public static class ExpressionStmt extends Stmt {
         final public Expr expression;
 
-        public ExpressionStmt(Expr expression) {
+        public ExpressionStmt (Expr expression) {
             this.expression = expression;
         }
 

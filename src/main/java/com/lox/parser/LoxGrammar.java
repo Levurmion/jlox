@@ -10,6 +10,14 @@ import com.lox.parser.ast.Stmt;
 
 public class LoxGrammar {
 
+    // ===== HELPER METHODS =====
+    
+    private void expectSemicolon (LoxParser.Context ctx) {
+        ctx.matchOrThrow(LoxTokenType.SEMICOLON, "expected ';' after statements");
+    }
+
+    // ===== GRAMMAR =====
+
     public List<Stmt> start (LoxParser.Context ctx) {
         List<Stmt> statements = new ArrayList<>();
         while (!ctx.isAtEnd()) {
@@ -30,15 +38,17 @@ public class LoxGrammar {
         if (stmt == null) {
             throw ctx.error(ctx.getLastMatchedToken(), "invalid declaration");
         } else {
-            ctx.matchOrThrow(LoxTokenType.SEMICOLON, "expected ';' after statements");
             return stmt;
         }
     }
 
     private Stmt statement (LoxParser.Context ctx) {
-        if (ctx.lookahead(LoxTokenType.PRINT)) {
+        // statements not requiring ';'
+        if (ctx.lookahead(LoxTokenType.LEFT_BRACE)) {
+            return this.blockStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.PRINT)) {
             return this.printStatement(ctx);
-        } else {
+        }  else {
             return this.expressionStatement(ctx);
         }
     }
@@ -47,27 +57,45 @@ public class LoxGrammar {
         ctx.match(LoxTokenType.VAR);
         ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable name");
         LoxToken identifier = ctx.getLastMatchedToken();
+
+        Stmt varDeclStmt;
         if (ctx.match(LoxTokenType.EQUAL)) {
             // expecting a right-hand expression
             Expr expr = this.expression(ctx);
-            return new Stmt.VarDeclStmt(identifier, expr);
+            varDeclStmt = new Stmt.VarDeclStmt(identifier, expr);
         } else {
             // an uninitialized variable declaration
-            return new Stmt.VarDeclStmt(identifier);
+            varDeclStmt = new Stmt.VarDeclStmt(identifier);
         }
+
+        this.expectSemicolon(ctx);
+        return varDeclStmt;
+    }
+
+    private Stmt blockStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.LEFT_BRACE);
+        List<Stmt> blockDeclarations = new ArrayList<>();
+        while (!ctx.lookahead(LoxTokenType.RIGHT_BRACE)) {
+            blockDeclarations.add(this.declaration(ctx));
+        }
+        ctx.match(LoxTokenType.RIGHT_BRACE);
+
+        return new Stmt.BlockStmt(blockDeclarations);
     }
 
     private Stmt expressionStatement (LoxParser.Context ctx) {
         Expr expression = this.expression(ctx);
-
-        return new Stmt.ExpressionStmt(expression);
+        Stmt expressionStmt = new Stmt.ExpressionStmt(expression);
+        this.expectSemicolon(ctx);
+        return expressionStmt;
     }
 
     private Stmt printStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.PRINT);
         Expr expression = this.expression(ctx);
-
-        return new Stmt.PrintStmt(expression);
+        Stmt printStmt = new Stmt.PrintStmt(expression);
+        this.expectSemicolon(ctx);
+        return printStmt;
     }
 
     private Expr expression (LoxParser.Context ctx) {

@@ -17,7 +17,11 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     public static final String UNINITIALIZED = "UNINITIALIZED";
 
     // interpreter states
-    final private Environment environment = new Environment();
+    private Environment environment;
+
+    public LoxInterpreter () {
+        this.environment = new Environment();
+    }
     
     public void interpret (String source) {
         this.lexer = new LoxLexer(source);
@@ -52,6 +56,26 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         } else {
             this.environment.define(varDeclStmt.identifier, this.evaluate(expression));
         }
+        return null;
+    }
+
+    @Override
+    public Void visitBlockStmt (Stmt.BlockStmt blockStmt) {
+        // create a inner scope
+        Environment blockScope = new Environment(this.environment);
+        Environment outerScope = this.environment;
+        this.environment = blockScope;
+
+        try {
+            // execute block declarations
+            for (var declaration : blockStmt.declarations) {
+                this.execute(declaration);
+            }
+        } finally {
+            // delete inner scope
+            this.environment = outerScope;
+        }
+
         return null;
     }
     
