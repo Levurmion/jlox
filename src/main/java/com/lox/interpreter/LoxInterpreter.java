@@ -87,7 +87,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     }
 
     @Override
-    public Void visitIfStatement (Stmt.IfStmt ifStmt) {
+    public Void visitIfStmt (Stmt.IfStmt ifStmt) {
         if (ExprHelper.isTruthy(this.evaluate(ifStmt.condition))) {
             return this.execute(ifStmt.statement);
         }
@@ -102,6 +102,14 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
             return this.execute(ifStmt.elseStatement);
         }
 
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStmt (Stmt.WhileStmt whileStmt) {
+        while (ExprHelper.isTruthy(this.evaluate(whileStmt.condition))) {
+            this.execute(whileStmt.statement);
+        }
         return null;
     }
     

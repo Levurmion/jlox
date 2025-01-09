@@ -30,7 +30,7 @@ public class LoxGrammar {
     private Stmt declaration (LoxParser.Context ctx) {
         Stmt stmt = null;
         if (ctx.lookahead(LoxTokenType.VAR)) {
-            stmt = this.varDeclStmt(ctx);
+            stmt = this.varDeclStatement(ctx);
         } else {
             stmt = this.statement(ctx);
         }
@@ -50,6 +50,8 @@ public class LoxGrammar {
             return this.printStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.IF)) {
             return this.ifStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.WHILE)) {
+            return this.whileStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
         }
@@ -89,25 +91,36 @@ public class LoxGrammar {
         return new Stmt.IfStmt(elseIfCondition, elseIfStatement);
     }
 
+    // ===== LOOPS =====
+
+    private Stmt whileStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.WHILE);
+        ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected expression");
+        Expr condition = expression(ctx);
+        ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected expression");
+        Stmt whileStatement = statement(ctx);
+        return new Stmt.WhileStmt(condition, whileStatement);
+    }
+
     // ===== KEYWORD DECLARATIONS =====
 
-    private Stmt varDeclStmt (LoxParser.Context ctx) {
+    private Stmt varDeclStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.VAR);
         ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected variable name");
         LoxToken identifier = ctx.getLastMatchedToken();
 
-        Stmt varDeclStmt;
+        Stmt varDeclStatement;
         if (ctx.match(LoxTokenType.EQUAL)) {
             // expecting a right-hand expression
             Expr expr = this.expression(ctx);
-            varDeclStmt = new Stmt.VarDeclStmt(identifier, expr);
+            varDeclStatement = new Stmt.VarDeclStmt(identifier, expr);
         } else {
             // an uninitialized variable declaration
-            varDeclStmt = new Stmt.VarDeclStmt(identifier);
+            varDeclStatement = new Stmt.VarDeclStmt(identifier);
         }
 
         this.expectSemicolon(ctx);
-        return varDeclStmt;
+        return varDeclStatement;
     }
 
     private Stmt printStatement (LoxParser.Context ctx) {

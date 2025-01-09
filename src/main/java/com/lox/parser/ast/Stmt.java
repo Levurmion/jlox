@@ -11,7 +11,8 @@ public abstract class Stmt {
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
         public R visitBlockStmt (Stmt.BlockStmt stmt);
-        public R visitIfStatement (Stmt.IfStmt stmt);
+        public R visitIfStmt (Stmt.IfStmt stmt);
+        public R visitWhileStmt (Stmt.WhileStmt stmt);
     }
 
     public abstract <R> R accept (Stmt.Visitor<R> visitor);
@@ -42,6 +43,26 @@ public abstract class Stmt {
             } else {
                 return "( VAR_DECL: " + this.identifier.lexeme + ", expr: null )";
             }
+        }
+    }
+
+    public static class WhileStmt extends Stmt {
+        final public Expr condition;
+        final public Stmt statement;
+
+        public WhileStmt(Expr condition, Stmt statement) {
+            this.condition = condition;
+            this.statement = statement;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitWhileStmt(this);
+        }
+
+        @Override
+        public String toString () {
+            return "(\n\tWHILE " + this.condition.toString() + "\n\tTHEN " + this.statement.toString() + "\n)";
         }
     }
 
@@ -121,7 +142,7 @@ public abstract class Stmt {
 
         @Override
         public <R> R accept (Stmt.Visitor<R> visitor) {
-            return visitor.visitIfStatement(this);
+            return visitor.visitIfStmt(this);
         }
 
         @Override
