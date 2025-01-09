@@ -4,7 +4,6 @@ import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.interpreter.helpers.ExprHelper;
 import com.lox.lexer.LoxLexer;
 import com.lox.lexer.LoxToken;
-import com.lox.lexer.LoxTokenType;
 import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
 import com.lox.parser.ast.Expr;
@@ -177,10 +176,11 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
     @Override
     public Object visitLiteralExpr (Expr.Literal literal) {
-        if (literal.token.type == LoxTokenType.IDENTIFIER) {
-            return this.environment.use(literal.token);
-        }
-        
         return literal.token.literal;
+    }
+
+    @Override
+    public Object visitVariableExpr (Expr.Variable variable) {
+        return this.environment.use(variable.token);
     }
 }

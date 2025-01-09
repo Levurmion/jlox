@@ -152,12 +152,12 @@ public class LoxGrammar {
             LoxTokenType.STRING,
             LoxTokenType.TRUE,
             LoxTokenType.FALSE,
-            LoxTokenType.NIL,
-            LoxTokenType.IDENTIFIER
+            LoxTokenType.NIL
         )) {
             return new Expr.Literal(ctx.getLastMatchedToken()); 
-
-        } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
+        } else if (ctx.match(LoxTokenType.IDENTIFIER)) {
+            return new Expr.Variable(ctx.getLastMatchedToken());
+        }else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
             Expr expression = expression(ctx);
             ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected closing \")\" after a nested expression");
             return new Expr.Grouping(expression);

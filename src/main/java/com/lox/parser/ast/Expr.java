@@ -9,6 +9,7 @@ public abstract class Expr {
         public R visitBinaryExpr(Expr.Binary expr);
         public R visitUnaryExpr(Expr.Unary expr);
         public R visitLiteralExpr(Expr.Literal expr);
+        public R visitVariableExpr(Expr.Variable expr);
     }
 
     public abstract <R> R accept (Expr.Visitor<R> visitor);
@@ -104,6 +105,24 @@ public abstract class Expr {
         public <R> R accept (Expr.Visitor<R> visitor) {
             return visitor.visitLiteralExpr(this);
         } 
+
+        @Override
+        public String toString () {
+            return this.token.lexeme;
+        }
+    }
+
+    public static class Variable extends Expr {
+        final public LoxToken token;
+
+        public Variable(LoxToken token) {
+            this.token = token;
+        }
+
+        @Override 
+        public <R> R accept (Expr.Visitor<R> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
 
         @Override
         public String toString () {

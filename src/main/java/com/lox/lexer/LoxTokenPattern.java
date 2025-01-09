@@ -337,7 +337,7 @@ public abstract class LoxTokenPattern {
     static public class TrueLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(true)";
+            return "^(\\btrue\\b)";
         }
 
         @Override
@@ -354,7 +354,7 @@ public abstract class LoxTokenPattern {
     static public class FalseLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(false)";
+            return "^(\\bfalse\\b)";
         }
 
         @Override
@@ -371,7 +371,7 @@ public abstract class LoxTokenPattern {
     static public class NilLiteral extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(nil)";
+            return "^(\\bnil\\b)";
         }
 
         @Override
@@ -392,7 +392,7 @@ public abstract class LoxTokenPattern {
     static public class And extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(and)";
+            return "^(\\band\\b)";
         }
 
         @Override
@@ -404,7 +404,7 @@ public abstract class LoxTokenPattern {
     static public class Or extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(or)";
+            return "^(\\bor\\b)";
         }
 
         @Override
@@ -416,7 +416,7 @@ public abstract class LoxTokenPattern {
     static public class If extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(if)";
+            return "^(\\bif\\b)";
         }
 
         @Override
@@ -428,7 +428,7 @@ public abstract class LoxTokenPattern {
     static public class Else extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(else)";
+            return "^(\\belse\\b)";
         }
 
         @Override
@@ -440,7 +440,7 @@ public abstract class LoxTokenPattern {
     static public class Return extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(return)";
+            return "^(\\breturn\\b)";
         }
 
         @Override
@@ -452,7 +452,7 @@ public abstract class LoxTokenPattern {
     static public class Var extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(var)";
+            return "^(\\bvar\\b)";
         }
 
         @Override
@@ -464,7 +464,7 @@ public abstract class LoxTokenPattern {
     static public class This extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(this)";
+            return "^(\\bthis\\b)";
         }
 
         @Override
@@ -476,7 +476,7 @@ public abstract class LoxTokenPattern {
     static public class For extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(for)";
+            return "^(\\bfor\\b)";
         }
 
         @Override
@@ -488,7 +488,7 @@ public abstract class LoxTokenPattern {
     static public class While extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(while)";
+            return "^(\\bwhile\\b)";
         }
 
         @Override
@@ -500,7 +500,7 @@ public abstract class LoxTokenPattern {
     static public class Print extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(print)";
+            return "^(\\bprint\\b)";
         }
 
         @Override
@@ -512,7 +512,7 @@ public abstract class LoxTokenPattern {
     static public class Class extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(class)";
+            return "^(\\bclass\\b)";
         }
 
         @Override
@@ -524,7 +524,7 @@ public abstract class LoxTokenPattern {
     static public class Fun extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(fun)";
+            return "^(\\bfun\\b)";
         }
 
         @Override
@@ -536,7 +536,7 @@ public abstract class LoxTokenPattern {
     static public class Super extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^(super)";
+            return "^(\\bsuper\\b)";
         }
 
         @Override
