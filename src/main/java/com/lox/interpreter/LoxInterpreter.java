@@ -37,6 +37,9 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     }
 
     private Object evaluate (Expr expression) {
+        if (expression == null) {
+            return null;
+        }
         return expression.accept(this);
     }
 

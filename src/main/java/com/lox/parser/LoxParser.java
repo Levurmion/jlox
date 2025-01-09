@@ -49,7 +49,7 @@ public class LoxParser {
         public boolean matchOrThrow (LoxTokenType tokenType, String message) {
             boolean tokenMatched = this.match(tokenType);
             if (!tokenMatched) {
-                throw this.error(this.getCurrToken(), message);
+                throw this.error(this.getLastMatchedToken(), message);
             } else {
                 return true;
             }

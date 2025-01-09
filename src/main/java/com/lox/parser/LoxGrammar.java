@@ -52,6 +52,8 @@ public class LoxGrammar {
             return this.ifStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.WHILE)) {
             return this.whileStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.FOR)) {
+            return this.forStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
         }
@@ -100,6 +102,55 @@ public class LoxGrammar {
         ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected expression");
         Stmt whileStatement = statement(ctx);
         return new Stmt.WhileStmt(condition, whileStatement);
+    }
+
+    private Stmt forStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.FOR);
+
+        // match clauses
+        ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected loop 'initializer', 'condition', and 'increment' clauses");
+        Stmt initializer = forInitializer(ctx);
+
+        Expr condition = null;
+        if (!ctx.lookahead(LoxTokenType.SEMICOLON)) {
+            condition = expression(ctx);
+        }
+        ctx.matchOrThrow(LoxTokenType.SEMICOLON, "for loop expects an 'increment' clause");
+        
+        Expr increment = null;
+        if (!ctx.lookahead(LoxTokenType.RIGHT_PAREN)) {
+            increment = expression(ctx); 
+        }
+        ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "unclosed loop clause");
+
+        // match statement
+        Stmt forStatement = statement(ctx);
+
+        // desugar
+        List<Stmt> loopBody = new ArrayList<>();
+        loopBody.add(forStatement);
+        if (increment != null) {
+            loopBody.add(new Stmt.ExpressionStmt(increment));
+        }
+
+        List<Stmt> loopStatements = new ArrayList<>();
+        if (initializer != null) {
+            loopStatements.add(initializer);
+        }
+        loopStatements.add(new Stmt.WhileStmt(condition, new Stmt.BlockStmt(loopBody)));
+
+        Stmt desugaredForLoopBlock = new Stmt.BlockStmt(loopStatements);
+        return desugaredForLoopBlock;
+    }
+
+    private Stmt forInitializer (LoxParser.Context ctx) {
+        if (ctx.lookahead(LoxTokenType.VAR)) {
+            return varDeclStatement(ctx);
+        } else if (ctx.match(LoxTokenType.SEMICOLON)) {
+            return null;
+        } else {
+            return expressionStatement(ctx);
+        }
     }
 
     // ===== KEYWORD DECLARATIONS =====
@@ -264,12 +315,12 @@ public class LoxGrammar {
             return new Expr.Literal(ctx.getLastMatchedToken()); 
         } else if (ctx.match(LoxTokenType.IDENTIFIER)) {
             return new Expr.Variable(ctx.getLastMatchedToken());
-        }else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
+        } else if (ctx.match(LoxTokenType.LEFT_PAREN)) {
             Expr expression = expression(ctx);
             ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected closing \")\" after a nested expression");
             return new Expr.Grouping(expression);
         }
 
-        throw ctx.error(ctx.getCurrToken(), "expected an expression");
+        throw ctx.error(ctx.getLastMatchedToken(), "expected an expression");
     }
 }
