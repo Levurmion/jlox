@@ -48,9 +48,43 @@ public class LoxGrammar {
             return this.blockStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.PRINT)) {
             return this.printStatement(ctx);
-        }  else {
+        } else if (ctx.lookahead(LoxTokenType.IF)) {
+            return this.ifStatement(ctx);
+        } else {
             return this.expressionStatement(ctx);
         }
+    }
+
+    private Stmt ifStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.IF);
+        ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected expression");
+        Expr ifCondition = this.expression(ctx);
+        ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected expression");
+        Stmt ifStatement = this.statement(ctx);
+
+        // match else if statements
+        List<Stmt.IfStmt> elseIfStatements = new ArrayList<>();
+        while (ctx.kLookahead(LoxTokenType.ELSE, LoxTokenType.IF)) {
+            elseIfStatements.add(this.elseIfStatement(ctx));
+        }
+
+        // match else statement
+        Stmt elseStatement = null;
+        if (ctx.match(LoxTokenType.ELSE)) {
+            elseStatement = this.statement(ctx);
+        }
+
+        return new Stmt.IfStmt(ifCondition, ifStatement, elseIfStatements, elseStatement);
+    }
+
+    private Stmt.IfStmt elseIfStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.ELSE);
+        ctx.match(LoxTokenType.IF);
+        ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected expression");
+        Expr elseIfCondition = this.expression(ctx);
+        ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected expression");
+        Stmt elseIfStatement = this.statement(ctx);
+        return new Stmt.IfStmt(elseIfCondition, elseIfStatement);
     }
 
     private Stmt varDeclStmt (LoxParser.Context ctx) {

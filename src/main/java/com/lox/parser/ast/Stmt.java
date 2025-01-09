@@ -1,5 +1,6 @@
 package com.lox.parser.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.lox.lexer.LoxToken;
@@ -10,6 +11,7 @@ public abstract class Stmt {
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
         public R visitBlockStmt (Stmt.BlockStmt stmt);
+        public R visitIfStatement (Stmt.IfStmt stmt);
     }
 
     public abstract <R> R accept (Stmt.Visitor<R> visitor);
@@ -95,5 +97,45 @@ public abstract class Stmt {
         public String toString () {
             return "( PRINT: " + this.expression.toString() + " )";
         }
+    }
+
+    public static class IfStmt extends Stmt {
+        final public Expr condition;
+        final public Stmt statement;
+        final public List<Stmt.IfStmt> elseIfStatements;
+        final public Stmt elseStatement;
+
+        public IfStmt(Expr condition, Stmt statement, List<Stmt.IfStmt> elseIfStatement, Stmt elseStatement) {
+            this.condition = condition;
+            this.statement = statement;
+            this.elseIfStatements = elseIfStatement;
+            this.elseStatement = elseStatement;
+        }
+
+        public IfStmt(Expr condition, Stmt statement) {
+            this.condition = condition;
+            this.statement = statement;
+            this.elseIfStatements = new ArrayList<>();
+            this.elseStatement = null;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitIfStatement(this);
+        }
+
+        @Override
+        public String toString() {
+            String asString = "( IF " + this.condition.toString() + " THEN " + this.statement.toString();
+            for (var elseIfStatement : this.elseIfStatements) {
+                asString += "\n" + elseIfStatement.toString();
+            }
+            if (this.elseStatement != null) {
+                asString += "\nELSE " + this.elseStatement.toString() + " )";
+            }
+
+            return asString;
+        }
+        
     }
 }

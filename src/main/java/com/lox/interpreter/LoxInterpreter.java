@@ -13,9 +13,6 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     private LoxLexer lexer;
     private LoxParser parser;
 
-    // constants
-    public static final String UNINITIALIZED = "UNINITIALIZED";
-
     // interpreter states
     private Environment environment;
 
@@ -89,6 +86,25 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     public Void visitPrintStmt (Stmt.PrintStmt printStmt) {
         Object expressionValue = this.evaluate(printStmt.expression);
         System.out.println(expressionValue);
+        return null;
+    }
+
+    @Override
+    public Void visitIfStatement (Stmt.IfStmt ifStmt) {
+        if (ExprHelper.isTruthy(this.evaluate(ifStmt.condition))) {
+            return this.execute(ifStmt.statement);
+        }
+
+        for (var elseIf : ifStmt.elseIfStatements) {
+            if (ExprHelper.isTruthy(this.evaluate(elseIf.condition))) {
+                return this.execute(elseIf.statement);
+            }
+        }
+        
+        if (ifStmt.elseStatement != null) {
+            return this.execute(ifStmt.elseStatement);
+        }
+
         return null;
     }
     
