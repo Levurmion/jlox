@@ -2,42 +2,52 @@ package com.lox;
 
 import java.util.Scanner;
 
-import com.lox.interpreter.LoxInterpreter;
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.parser.exceptions.ParseError;
 
 public class App
 {
+    final public Lox interpreter = new Lox();
+    final public Scanner scanner = new Scanner(System.in);
+
     public static void main( String[] args )
     {   
         System.out.println("Starting Lox REPL v0.1");
         System.err.println("");
-        Scanner scanner = new Scanner(System.in);
-
+        App app = new App();
+        
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            scanner.close();
+            app.scanner.close();
         }));
-        LoxInterpreter interpreter = new LoxInterpreter();
 
         while (true) {
             try {
-                System.out.print(">> ");
-                String source = scanner.nextLine();
-
-                if (source.equals("exit")) {
-                    scanner.close();
-                    System.err.println("Exiting REPL\n");
-                    break;
+                if (app.interpreter.sourceIsEmpty()) {
+                    System.out.print(">>> ");
+                } else {
+                    System.out.print("... ");
                 }
 
-                interpreter.interpret(source);
+                String source = app.scanner.nextLine();
+
+                if (source.equals("exit()")) {
+                    app.scanner.close();
+                    System.out.println("Exiting REPL\n");
+                    break;
+                } else if (source.equals("run()")) {
+                    app.interpreter.interpretSource();
+                    System.out.println();
+                } else {
+                    app.interpreter.writeLine(source);
+                }
+
             } catch (RuntimeError e) {
                 System.err.println(e.token);
                 System.err.println(e.getMessage());
             } catch (ParseError e) {
                 System.err.println(e);
             } catch (Exception e) {
-                scanner.close();
+                app.scanner.close();
                 throw e;
             } 
         }

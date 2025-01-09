@@ -27,8 +27,6 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         this.parser = new LoxParser(this.lexer.tokens, new LoxGrammar());
         this.parser.parse();
 
-        System.out.println(this.parser.program);
-
         for (var statement : this.parser.program) {
             this.execute(statement);
         }

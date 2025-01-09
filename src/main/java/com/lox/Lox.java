@@ -1,9 +1,28 @@
 package com.lox;
 
+import com.lox.interpreter.LoxInterpreter;
 import com.lox.lexer.LoxToken;
 import com.lox.lexer.LoxTokenType;
 
 public class Lox {
+    final private LoxInterpreter interpreter = new LoxInterpreter();
+    private String source = "";
+
+    public boolean sourceIsEmpty () {
+        return source.length() <= 0;
+    }
+
+    public void writeLine (String line) {
+        this.source += line + "\n";
+    }
+
+    public void interpretSource () {
+        try {
+            this.interpreter.interpret(this.source);
+        } finally {
+            this.source = "";
+        }
+    }
 
     public static void report (Object... args) {
         String message = "";
