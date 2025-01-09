@@ -9,7 +9,16 @@ import com.lox.lexer.LoxToken;
 public class Environment {
     static final public String UNINITIALIZED = "uninitialized";
 
+    private Environment enclosing;
     final private Map<String, Object> variables = new HashMap<>();
+
+    public Environment (Environment enclosing) {
+        this.enclosing = enclosing;
+    }
+
+    public Environment () {
+        this.enclosing = null;
+    }
 
     public void define (LoxToken variable, Object value) {
         this.variables.put((String)variable.literal, value);
@@ -22,8 +31,10 @@ public class Environment {
     public void assign (LoxToken variable, Object value) {
         if (this.variables.containsKey((String)variable.literal)) {
             this.variables.put((String)variable.literal, value);
+        } else if (this.enclosing != null) {
+            this.enclosing.assign(variable, value);
         } else {
-            throw new RuntimeError(variable, "cannot assign value to an undeclared variable");
+            throw new RuntimeError(variable, "undeclared variable");
         }
     }
 
@@ -35,7 +46,10 @@ public class Environment {
             } else {
                 return value;
             }
+        } else if (this.enclosing != null) {
+            return this.enclosing.use(variable);
+        } else {
+            throw new RuntimeError(variable, "cannot use an undeclared variable");
         }
-        throw new RuntimeError(variable, "cannot use an undeclared variable");
     }
 }

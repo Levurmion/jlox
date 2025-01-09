@@ -11,9 +11,10 @@ The main purpose of statements is to execute a side effect that can be persisted
 <var declaration>       -> "var" ID ( "=" <expression statement> )? ";"
 
 // statements
-<statement>             -> ( <print statement> | <expression statement> ) ";"
+<statement>             -> ( <print statement> | <expression statement> | <block> ) ";"
 <print statement>       -> "print" <expression>
 <expression statement>  -> <expression>
+<block>                 -> "{" ( <declaration> )* "}"
 ```
 
 ## Expressions
