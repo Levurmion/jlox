@@ -389,6 +389,30 @@ public abstract class LoxTokenPattern {
      * ===== KEYWORDS =====
      */
 
+    static public class Break extends LoxTokenPattern {
+        @Override
+        protected String getRegex () {
+            return "^(\\bbreak\\b)";
+        }
+
+        @Override
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.BREAK;
+        }
+    }
+
+    static public class Continue extends LoxTokenPattern {
+        @Override
+        protected String getRegex () {
+            return "^(\\bcontinue\\b)";
+        }
+
+        @Override
+        protected LoxTokenType getTokenType() {
+            return LoxTokenType.CONTINUE;
+        }
+    }
+
     static public class And extends LoxTokenPattern {
         @Override
         protected String getRegex () {

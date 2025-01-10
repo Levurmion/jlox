@@ -14,7 +14,7 @@ public enum LoxTokenType {
 
     // keywords
     AND, CLASS, ELSE, FUN, FOR, IF, OR, PRINT, RETURN,
-    SUPER, THIS, VAR, WHILE,
+    SUPER, THIS, VAR, WHILE, BREAK, CONTINUE,
 
     EOF
 }

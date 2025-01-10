@@ -43,7 +43,6 @@ public class LoxGrammar {
     }
 
     private Stmt statement (LoxParser.Context ctx) {
-        // statements not requiring ';'
         if (ctx.lookahead(LoxTokenType.LEFT_BRACE)) {
             return this.blockStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.PRINT)) {
@@ -54,6 +53,10 @@ public class LoxGrammar {
             return this.whileStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.FOR)) {
             return this.forStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.BREAK)) {
+            return this.breakStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.CONTINUE)) {
+            return this.continueStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
         }
@@ -153,7 +156,7 @@ public class LoxGrammar {
         }
     }
 
-    // ===== KEYWORD DECLARATIONS =====
+    // ===== DECLARATIONS =====
 
     private Stmt varDeclStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.VAR);
@@ -174,12 +177,28 @@ public class LoxGrammar {
         return varDeclStatement;
     }
 
+    // ===== KEYWORD STATEMENTS =====
+
     private Stmt printStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.PRINT);
         Expr expression = this.expression(ctx);
         Stmt printStmt = new Stmt.PrintStmt(expression);
         this.expectSemicolon(ctx);
         return printStmt;
+    }
+
+    private Stmt breakStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.BREAK);
+        Stmt breakStatement = new Stmt.SingleKeywordStmt(ctx.getLastMatchedToken());
+        this.expectSemicolon(ctx);
+        return breakStatement;
+    }
+
+    private Stmt continueStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.CONTINUE);
+        Stmt continueStatement = new Stmt.SingleKeywordStmt(ctx.getLastMatchedToken());
+        this.expectSemicolon(ctx);
+        return continueStatement;
     }
 
     // ===== BLOCK STATEMENT =====

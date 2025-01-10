@@ -12,14 +12,18 @@ The main purpose of statements is to execute a side effect that can be persisted
 
 // statements
 <statement>             -> <print_statement> 
+                        | <break_statement>
+                        | <continue_statement>
                         | <expression_statement> 
                         | <if_statement> 
                         | <while_statement> 
-                        | <for_statement> 
+                        | <for_statement>
                         | <block>
 
 // keyword statements
 <print_statement>       -> "print" <expression> ";"
+<break_statement>       -> "break" ";"
+<continue_statement>    -> "continue" ";"
 
 // control flow statements
 <if_statement>          -> "if" "(" <expression> ")" <statement> <else_if_statement>*
@@ -32,7 +36,7 @@ The main purpose of statements is to execute a side effect that can be persisted
 <for_initializer>       -> <var_declaration> | <expression_statement> | ";"
 
 // blocks
-<block>                 -> "{" [ <declaration> ]* "}"
+<block>                 -> "{" <declaration>* "}"
 
 // expression statement
 <expression_statement>  -> <expression> ";"

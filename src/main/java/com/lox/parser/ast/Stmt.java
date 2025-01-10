@@ -13,6 +13,7 @@ public abstract class Stmt {
         public R visitBlockStmt (Stmt.BlockStmt stmt);
         public R visitIfStmt (Stmt.IfStmt stmt);
         public R visitWhileStmt (Stmt.WhileStmt stmt);
+        public R visitSingleKeywordStmt (Stmt.SingleKeywordStmt stmt);
     }
 
     public abstract <R> R accept (Stmt.Visitor<R> visitor);
@@ -117,6 +118,24 @@ public abstract class Stmt {
         @Override
         public String toString () {
             return "( PRINT: " + this.expression.toString() + " )";
+        }
+    }
+
+    public static class SingleKeywordStmt extends Stmt {
+        final public LoxToken keyword;
+
+        public SingleKeywordStmt(LoxToken keyword) {
+            this.keyword = keyword;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitSingleKeywordStmt(this);
+        }
+
+        @Override 
+        public String toString () {
+            return "( " + this.keyword.lexeme + " )"; 
         }
     }
 

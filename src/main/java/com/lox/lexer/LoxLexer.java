@@ -46,6 +46,8 @@ public class LoxLexer {
         new LoxTokenPattern.Less(),
 
         // match keywords
+        new LoxTokenPattern.Break(),
+        new LoxTokenPattern.Continue(),
         new LoxTokenPattern.And(),
         new LoxTokenPattern.Or(),
         new LoxTokenPattern.If(),

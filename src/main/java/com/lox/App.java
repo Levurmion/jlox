@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.parser.exceptions.ParseError;
+import com.lox.parser.exceptions.SyntaxError;
 
 public class App
 {
@@ -45,6 +46,9 @@ public class App
                 }
 
             } catch (RuntimeError e) {
+                System.err.println(e.token);
+                System.err.println(e.getMessage());
+            } catch (SyntaxError e) {
                 System.err.println(e.token);
                 System.err.println(e.getMessage());
             } catch (ParseError e) {

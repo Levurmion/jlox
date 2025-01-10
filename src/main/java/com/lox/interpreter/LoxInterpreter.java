@@ -8,6 +8,7 @@ import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
 import com.lox.parser.ast.Expr;
 import com.lox.parser.ast.Stmt;
+import com.lox.parser.exceptions.SyntaxError;
 
 public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private LoxLexer lexer;
@@ -111,9 +112,33 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     @Override
     public Void visitWhileStmt (Stmt.WhileStmt whileStmt) {
         while (ExprHelper.isTruthy(this.evaluate(whileStmt.condition))) {
-            this.execute(whileStmt.statement);
+            try {
+                this.execute(whileStmt.statement);
+            } catch (SyntaxError err) {
+                switch (err.token.type) {
+                    case BREAK: 
+                        return null;
+                    case CONTINUE: 
+                        continue;
+                    default:
+                        throw err;
+                }
+            }
         }
         return null;
+    }
+
+    @Override 
+    public Void visitSingleKeywordStmt (Stmt.SingleKeywordStmt singleKeywordStmt) {
+        LoxToken keyword = singleKeywordStmt.keyword;
+        switch (keyword.type) {
+            case BREAK:
+                throw new SyntaxError(keyword, "cannot use 'break' outside a loop");
+            case CONTINUE:
+                throw new SyntaxError(keyword, "cannot use 'continue' outside a loop");
+            default:
+                return null;
+        }
     }
     
     // ===== EXPRESSION VISITOR METHODS =====
