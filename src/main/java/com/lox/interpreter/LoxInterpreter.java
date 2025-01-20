@@ -3,6 +3,7 @@ package com.lox.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lox.interpreter.exceptions.Return;
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.interpreter.helpers.ExprHelper;
 import com.lox.lexer.LoxLexer;
@@ -11,6 +12,7 @@ import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
 import com.lox.parser.ast.Expr;
 import com.lox.parser.ast.LoxCallable;
+import com.lox.parser.ast.LoxFunction;
 import com.lox.parser.ast.Stmt;
 import com.lox.parser.exceptions.SyntaxError;
 
@@ -19,8 +21,8 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     private LoxParser parser;
 
     // interpreter states
-    final Environment globals = new Environment();
-    private Environment environment;
+    final public Environment globals = new Environment();
+    public Environment environment;
 
     public LoxInterpreter () {
         // define a 'clock' native function
@@ -57,6 +59,21 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         return null;
     }
 
+    public Void executeBlock (Stmt.BlockStmt block, Environment blockEnvironment) {
+        Environment outerScope = this.environment;
+        this.environment = blockEnvironment;
+
+        try {
+            for (var declaration : block.declarations) {
+                this.execute(declaration);
+            }
+        } finally {
+            this.environment = outerScope;
+        }
+
+        return null;
+    }
+
     private Object evaluate (Expr expression) {
         if (expression == null) {
             return null;
@@ -74,6 +91,13 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         } else {
             this.environment.define(varDeclStmt.identifier, this.evaluate(expression));
         }
+        return null;
+    }
+
+    @Override 
+    public Void visitFunDeclStmt (Stmt.FunDeclStmt funDeclStmt) {
+        LoxFunction loxFunction = new LoxFunction(funDeclStmt);
+        this.environment.define(funDeclStmt.identifier.lexeme, loxFunction);
         return null;
     }
 
@@ -108,6 +132,15 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         Object expressionValue = this.evaluate(printStmt.expression);
         System.out.println(expressionValue);
         return null;
+    }
+
+    @Override
+    public Void visitReturnStmt (Stmt.ReturnStmt returnStmt) {
+        Object value = null;
+        if (returnStmt.expression != null) {
+            value = evaluate(returnStmt.expression);
+        }
+        throw new Return(value);
     }
 
     @Override

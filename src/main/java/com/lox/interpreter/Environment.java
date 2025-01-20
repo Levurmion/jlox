@@ -57,7 +57,7 @@ public class Environment {
         } else if (this.enclosing != null) {
             return this.enclosing.use(variable);
         } else {
-            throw new RuntimeError(variable, "cannot use an undeclared variable");
+            throw new RuntimeError(variable, "cannot use an undeclared variable: " + variable.lexeme);
         }
     }
 }

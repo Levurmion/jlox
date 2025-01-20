@@ -11,6 +11,7 @@ public abstract class Stmt {
         public R visitFunDeclStmt (Stmt.FunDeclStmt stmt);
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
+        public R visitReturnStmt (Stmt.ReturnStmt stmt);
         public R visitBlockStmt (Stmt.BlockStmt stmt);
         public R visitIfStmt (Stmt.IfStmt stmt);
         public R visitWhileStmt (Stmt.WhileStmt stmt);
@@ -143,6 +144,28 @@ public abstract class Stmt {
         @Override
         public String toString () {
             return "( PRINT: " + this.expression.toString() + " )";
+        }
+    }
+
+    public static class ReturnStmt extends Stmt {
+        final public Expr expression;
+
+        public ReturnStmt(Expr expression) {
+            this.expression = expression;
+        }
+
+        public ReturnStmt() {
+            this.expression = null;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitReturnStmt(this);
+        }
+
+        @Override
+        public String toString () {
+            return "RETURN: " + this.expression.toString();
         }
     }
 

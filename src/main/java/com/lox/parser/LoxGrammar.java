@@ -57,6 +57,10 @@ public class LoxGrammar {
             return this.breakStatement(ctx);
         } else if (ctx.lookahead(LoxTokenType.CONTINUE)) {
             return this.continueStatement(ctx);
+        } else if (ctx.lookahead(LoxTokenType.FUN)) {
+            return this.funDeclStatement(ctx, "function");
+        } else if (ctx.lookahead(LoxTokenType.RETURN)) {
+            return this.returnStatement(ctx);
         } else {
             return this.expressionStatement(ctx);
         }
@@ -177,6 +181,34 @@ public class LoxGrammar {
         return varDeclStatement;
     }
 
+    private Stmt funDeclStatement (LoxParser.Context ctx, String kind) {
+        ctx.match(LoxTokenType.FUN);
+        ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected " + kind + " name");
+        LoxToken functionName = ctx.getLastMatchedToken();
+        List<LoxToken> functionParameters = parameters(ctx);
+        Stmt.BlockStmt functionBody = blockStatement(ctx);
+
+        return new Stmt.FunDeclStmt(functionName, functionParameters, functionBody);
+    }
+
+    private List<LoxToken> parameters (LoxParser.Context ctx) {
+        ctx.matchOrThrow(LoxTokenType.LEFT_PAREN, "expected '(' after callable declaration");
+        List<LoxToken> parameters = new ArrayList<>();
+        if (!ctx.lookahead(LoxTokenType.RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    ctx.error(ctx.getCurrToken(), "cannot have more than 255 parameters");
+                }
+                ctx.matchOrThrow(LoxTokenType.IDENTIFIER, "expected identifiers for parameters");
+                parameters.add(ctx.getLastMatchedToken());
+            } while (ctx.match(LoxTokenType.COMMA));
+        }
+
+        ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected ')' after parameters");
+
+        return parameters;
+    }
+
     // ===== KEYWORD STATEMENTS =====
 
     private Stmt printStatement (LoxParser.Context ctx) {
@@ -185,6 +217,18 @@ public class LoxGrammar {
         Stmt printStmt = new Stmt.PrintStmt(expression);
         this.expectSemicolon(ctx);
         return printStmt;
+    }
+
+    private Stmt returnStatement (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.RETURN);
+        if (ctx.match(LoxTokenType.SEMICOLON)) {
+            return new Stmt.ReturnStmt();
+        } else {
+            Stmt.ReturnStmt returnStmt = new Stmt.ReturnStmt(expression(ctx));
+            this.expectSemicolon(ctx);
+            return returnStmt;
+        }
+
     }
 
     private Stmt breakStatement (LoxParser.Context ctx) {
@@ -203,7 +247,7 @@ public class LoxGrammar {
 
     // ===== BLOCK STATEMENT =====
 
-    private Stmt blockStatement (LoxParser.Context ctx) {
+    private Stmt.BlockStmt blockStatement (LoxParser.Context ctx) {
         ctx.match(LoxTokenType.LEFT_BRACE);
         List<Stmt> blockDeclarations = new ArrayList<>();
         while (!ctx.lookahead(LoxTokenType.RIGHT_BRACE)) {

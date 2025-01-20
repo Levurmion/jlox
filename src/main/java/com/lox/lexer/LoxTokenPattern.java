@@ -286,7 +286,7 @@ public abstract class LoxTokenPattern {
     static public class Identifier extends LoxTokenPattern {
         @Override
         protected String getRegex () {
-            return "^([a-zA-Z_][a-zA-Z0-9]*)";
+            return "^([a-zA-Z_][a-zA-Z0-9_]*)";
         }
 
         @Override

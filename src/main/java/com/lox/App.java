@@ -11,6 +11,14 @@ public class App
     final public Lox interpreter = new Lox();
     final public Scanner scanner = new Scanner(System.in);
 
+    public static void debugRuntimeError (RuntimeException e, boolean debugMode) {
+        if (debugMode) {
+            throw e;
+        } else {
+            System.err.println(e);
+        }
+    }
+
     public static void main( String[] args )
     {   
         System.out.println("Starting Lox REPL v0.1");
@@ -20,6 +28,9 @@ public class App
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             app.scanner.close();
         }));
+
+        CommandLine cmd = new CommandLine(args);
+        boolean debugMode = cmd.hasLongFlag("debug");
 
         while (true) {
             try {
@@ -47,12 +58,12 @@ public class App
 
             } catch (RuntimeError e) {
                 System.err.println(e.token);
-                System.err.println(e.getMessage());
+                debugRuntimeError(e, debugMode);
             } catch (SyntaxError e) {
                 System.err.println(e.token);
-                System.err.println(e.getMessage());
+                debugRuntimeError(e, debugMode);
             } catch (ParseError e) {
-                System.err.println(e);
+                debugRuntimeError(e, debugMode);
             } catch (Exception e) {
                 app.scanner.close();
                 throw e;

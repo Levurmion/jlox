@@ -26,6 +26,7 @@ The main purpose of statements is to execute a side effect that can be persisted
 
 // keyword statements
 <print_statement>       -> "print" <expression> ";"
+<return_statement>      -> "return" <expression>? ";"
 <break_statement>       -> "break" ";"
 <continue_statement>    -> "continue" ";"
 

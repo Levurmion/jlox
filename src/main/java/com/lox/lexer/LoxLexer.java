@@ -60,6 +60,7 @@ public class LoxLexer {
         new LoxTokenPattern.Var(),
         new LoxTokenPattern.For(),
         new LoxTokenPattern.While(),
+        new LoxTokenPattern.Return(),
     
         // finally, match primitives and generics
         new LoxTokenPattern.StringLiteral(),
