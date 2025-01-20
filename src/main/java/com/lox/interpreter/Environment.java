@@ -20,6 +20,14 @@ public class Environment {
         this.enclosing = null;
     }
 
+    public void define (String name, Object value) {
+        this.variables.put(name, value);
+    }
+
+    public void define (String name) {
+        this.variables.put(name, Environment.UNINITIALIZED);
+    }
+
     public void define (LoxToken variable, Object value) {
         this.variables.put((String)variable.literal, value);
     }

@@ -8,7 +8,11 @@ The main purpose of statements is to execute a side effect that can be persisted
 <declaration>           -> <var_declaration> | <statement>
 
 // declarations
-<var_declaration>       -> "var" ID [ "=" <expression_statement> ]? ";"
+<var_declaration>       -> "var" IDENTIFIER [ "=" <expression_statement> ]? ";"
+
+<fun_declaration>       -> "fun" <function> <block>
+<function>              -> IDENTIFIER "(" <parameters>? ")"
+<parameters>            -> IDENTIFIER [ "," IDENTIFIER ]*
 
 // statements
 <statement>             -> <print_statement> 
@@ -43,17 +47,30 @@ The main purpose of statements is to execute a side effect that can be persisted
 ```
 
 ## Expressions
-The evaluation of expression always yields a value.
+The evaluation of an expression always yields a value.
 
 ```
 <expression>            -> <assignment>
-<assignment>            -> ID "=" <assignment> | <logic_or>
+<assignment>            -> IDENTIFIER "=" <assignment> | <logic_or>
+
 <logic_or>              -> <logic_and> [ "or" <logic_and> ]*
 <logic_and>             -> <equality> [ "and" <equality> ]*
+
 <equality>              -> <comparison> [[ "!=" | "==" ] <comparison> ]*
 <comparison>            -> <term> [[ "<" | ">" | "<=" | ">=" ] <term> ]*
+
 <term>                  -> <factor> [[ "-" | "+" ] <factor>]*
 <factor>                -> <unary> [[ "*" | "/" ] <unary>]*
-<unary>                 -> [ "-" | "!" ] <unary> | <primary>
-<primary>               -> NUMBER | STRING | ID | "true" | "false" | "nil" | "(" <expression> ")"
+<unary>                 -> [ "-" | "!" ] <unary> | <call>
+
+<call>                  -> <primary> [ "(" <argument>? ")" ]*
+<argument>              -> <expression> [ "," <expression> ]*
+
+<primary>               -> NUMBER 
+                        | STRING 
+                        | IDENTIFIER 
+                        | "true" 
+                        | "false" 
+                        | "nil" 
+                        | "(" <expression> ")"
 ```

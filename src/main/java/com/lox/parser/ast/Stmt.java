@@ -8,6 +8,7 @@ import com.lox.lexer.LoxToken;
 public abstract class Stmt {
     public static interface Visitor<R> {
         public R visitVarDeclStmt (Stmt.VarDeclStmt stmt);
+        public R visitFunDeclStmt (Stmt.FunDeclStmt stmt);
         public R visitExpressionStmt (Stmt.ExpressionStmt stmt);
         public R visitPrintStmt (Stmt.PrintStmt stmt);
         public R visitBlockStmt (Stmt.BlockStmt stmt);
@@ -20,7 +21,7 @@ public abstract class Stmt {
 
     public static class VarDeclStmt extends Stmt {
         final public LoxToken identifier;
-        public Expr expression;
+        final public Expr expression;
 
         public VarDeclStmt(LoxToken identifier) {
             this.identifier = identifier;
@@ -45,6 +46,30 @@ public abstract class Stmt {
                 return "( VAR_DECL: " + this.identifier.lexeme + ", expr: null )";
             }
         }
+    }
+
+    public static class FunDeclStmt extends Stmt {
+        final public LoxToken identifier;
+        final public List<LoxToken> parameters;
+        final public Stmt.BlockStmt body;
+
+        public FunDeclStmt(LoxToken identifier, List<LoxToken> parameters, Stmt.BlockStmt body) {
+            this.identifier = identifier;
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        @Override
+        public <R> R accept (Stmt.Visitor<R> visitor) {
+            return visitor.visitFunDeclStmt(this);
+        }
+
+        @Override
+        public String toString () {
+            return "( FUN " + this.identifier.lexeme + " PARAMS " + this.parameters.toString() + " )";
+        }
+
+        
     }
 
     public static class WhileStmt extends Stmt {

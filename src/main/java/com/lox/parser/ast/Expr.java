@@ -1,5 +1,7 @@
 package com.lox.parser.ast;
 
+import java.util.List;
+
 import com.lox.lexer.LoxToken;
 
 public abstract class Expr {
@@ -10,16 +12,17 @@ public abstract class Expr {
         public R visitUnaryExpr(Expr.Unary expr);
         public R visitLiteralExpr(Expr.Literal expr);
         public R visitVariableExpr(Expr.Variable expr);
+        public R visitCallExpr(Expr.Call expr);
     }
 
     public abstract <R> R accept (Expr.Visitor<R> visitor);
 
     public static class Assignment extends Expr {
-        final public LoxToken identifier;
+        final public LoxToken variable;
         final public Expr right;
 
-        public Assignment(LoxToken identifier, Expr right) {
-            this.identifier = identifier;
+        public Assignment(LoxToken variable, Expr right) {
+            this.variable = variable;
             this.right = right;
         }
 
@@ -30,7 +33,7 @@ public abstract class Expr {
 
         @Override
         public String toString () {
-            return ("{ assign_id: " + this.identifier.literal + ", right: " + this.right.toString() + " }");
+            return ("{ assign_id: " + this.variable.literal + ", right: " + this.right.toString() + " }");
         }
     }
 
@@ -127,6 +130,28 @@ public abstract class Expr {
         @Override
         public String toString () {
             return this.token.lexeme;
+        }
+    }
+
+    public static class Call extends Expr {
+        final public Expr callee;
+        final public LoxToken paren;
+        final public List<Expr> arguments;
+
+        public Call(Expr callee, LoxToken paren, List<Expr> arguments) {
+            this.callee = callee;
+            this.paren = paren;
+            this.arguments = arguments;
+        }
+
+        @Override
+        public <R> R accept (Expr.Visitor<R> visitor) {
+            return visitor.visitCallExpr(this);
+        }
+
+        @Override
+        public String toString () {
+            return "( CALL " + this.callee.toString() + " ARGS " + this.arguments.toString() + " )"; 
         }
     }
 }

@@ -319,8 +319,33 @@ public class LoxGrammar {
             Expr right = unary(ctx);
             return new Expr.Unary(operator, right);
         } else {
-            return primary(ctx);
+            return call(ctx);
         }
+    }
+
+    private Expr call (LoxParser.Context ctx) {
+        Expr expr = primary(ctx);
+        while (ctx.match(LoxTokenType.LEFT_PAREN)) {
+            List<Expr> arguments = argument(ctx);
+            ctx.matchOrThrow(LoxTokenType.RIGHT_PAREN, "expected ')' after call arguments");
+            expr = new Expr.Call(expr, ctx.getLastMatchedToken(), arguments);
+        }
+
+        return expr;
+    }
+
+    private List<Expr> argument (LoxParser.Context ctx) {
+        List<Expr> arguments = new ArrayList<>();
+        if (!ctx.match(LoxTokenType.RIGHT_PAREN)) {
+            do { 
+                if (arguments.size() >= 255) {
+                    ctx.error(ctx.getLastMatchedToken(), "cannot have more than 255 arguments");
+                }
+                arguments.add(expression(ctx));
+            } while (ctx.match(LoxTokenType.COMMA));
+        }
+
+        return arguments;
     }
 
     private Expr primary (LoxParser.Context ctx) {

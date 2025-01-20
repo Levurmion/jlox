@@ -1,5 +1,8 @@
 package com.lox.interpreter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.lox.interpreter.exceptions.RuntimeError;
 import com.lox.interpreter.helpers.ExprHelper;
 import com.lox.lexer.LoxLexer;
@@ -7,6 +10,7 @@ import com.lox.lexer.LoxToken;
 import com.lox.parser.LoxGrammar;
 import com.lox.parser.LoxParser;
 import com.lox.parser.ast.Expr;
+import com.lox.parser.ast.LoxCallable;
 import com.lox.parser.ast.Stmt;
 import com.lox.parser.exceptions.SyntaxError;
 
@@ -15,9 +19,25 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     private LoxParser parser;
 
     // interpreter states
+    final Environment globals = new Environment();
     private Environment environment;
 
     public LoxInterpreter () {
+        // define a 'clock' native function
+        this.globals.define("clock", new LoxCallable() {
+            @Override
+            public int arity() { return 0; }
+
+            @Override
+            public Object call(LoxInterpreter interpreter, List<Object> arguments) {
+                return (double)System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() { return "<native fn>"; }
+
+        });
+
         this.environment = new Environment();
     }
     
@@ -147,7 +167,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     public Object visitAssignmentExpr (Expr.Assignment assignment) {
         Expr right = assignment.right;
         Object rightValue = this.evaluate(right);
-        this.environment.assign(assignment.identifier, rightValue);
+        this.environment.assign(assignment.variable, rightValue);
 
         return rightValue;
     }
@@ -253,6 +273,27 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
         }
 
         return result;
+    }
+
+    @Override
+    public Object visitCallExpr (Expr.Call expr) {
+        Object callee = this.evaluate(expr.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expr argument : expr.arguments) {
+            arguments.add(this.evaluate(argument));
+        }
+
+        if (!(callee instanceof LoxCallable)) {
+            throw new RuntimeError(expr.paren, "can only call functions and classes");
+        }
+
+        LoxCallable callable = (LoxCallable)callee;
+        if (arguments.size() != callable.arity()) {
+            throw new RuntimeError(expr.paren, "Expected " + callable.arity() + " arguments but got " + arguments.size());
+        }
+
+        return callable.call(this, arguments);
     }
 
     @Override
