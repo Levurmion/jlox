@@ -380,7 +380,7 @@ public class LoxGrammar {
 
     private List<Expr> argument (LoxParser.Context ctx) {
         List<Expr> arguments = new ArrayList<>();
-        if (!ctx.match(LoxTokenType.RIGHT_PAREN)) {
+        if (!ctx.lookahead(LoxTokenType.RIGHT_PAREN)) {
             do { 
                 if (arguments.size() >= 255) {
                     ctx.error(ctx.getLastMatchedToken(), "cannot have more than 255 arguments");

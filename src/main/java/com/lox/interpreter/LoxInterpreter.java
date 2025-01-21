@@ -21,8 +21,8 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
     private LoxParser parser;
 
     // interpreter states
-    final public Environment globals = new Environment();
-    public Environment environment;
+    final private Environment globals = new Environment();
+    private Environment environment;
 
     public LoxInterpreter () {
         // define a 'clock' native function
@@ -40,7 +40,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
         });
 
-        this.environment = new Environment();
+        this.environment = new Environment(globals);
     }
     
     public void interpret (String source) {
@@ -96,7 +96,7 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
     @Override 
     public Void visitFunDeclStmt (Stmt.FunDeclStmt funDeclStmt) {
-        LoxFunction loxFunction = new LoxFunction(funDeclStmt);
+        LoxFunction loxFunction = new LoxFunction(funDeclStmt, environment);
         this.environment.define(funDeclStmt.identifier.lexeme, loxFunction);
         return null;
     }

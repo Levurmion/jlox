@@ -8,9 +8,11 @@ import com.lox.interpreter.exceptions.Return;
 
 public class LoxFunction implements LoxCallable {
     private final Stmt.FunDeclStmt declaration;
+    private final Environment closure;
 
-    public LoxFunction(Stmt.FunDeclStmt declaration) {
+    public LoxFunction(Stmt.FunDeclStmt declaration, Environment environment) {
         this.declaration = declaration;
+        this.closure = environment;
     }
 
     @Override 
@@ -20,7 +22,7 @@ public class LoxFunction implements LoxCallable {
 
     @Override
     public Object call (LoxInterpreter interpreter, List<Object> arguments) {
-        Environment funEnvironment = new Environment(interpreter.environment);
+        Environment funEnvironment = new Environment(closure);
 
         for (int i = 0; i < declaration.parameters.size(); i++) {
             // define parameter values (arguments) in function scope environment
