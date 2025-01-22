@@ -204,6 +204,15 @@ public class LoxInterpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> 
 
         return rightValue;
     }
+
+    @Override
+    public Object visitAnonymousFuncExpr (Expr.AnonymousFunc anonymousFunc) {
+        Stmt.FunDeclStmt anonymousFuncDecl = new Stmt.FunDeclStmt(
+            anonymousFunc.parameters,
+            anonymousFunc.body
+        );
+        return new LoxFunction(anonymousFuncDecl, environment);
+    }
     
     @Override
     public Object visitGroupingExpr (Expr.Grouping group) {

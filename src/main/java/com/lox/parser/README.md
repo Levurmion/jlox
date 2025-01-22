@@ -7,9 +7,10 @@ The main purpose of statements is to execute a side effect that can be persisted
 <program>               -> <declaration>* "EOF"
 <declaration>           -> <var_declaration> | <statement>
 
-// declarations
+// variable declaration
 <var_declaration>       -> "var" IDENTIFIER [ "=" <expression_statement> ]? ";"
 
+// named function declaration
 <fun_declaration>       -> "fun" <function> <block>
 <function>              -> IDENTIFIER "(" <parameters>? ")"
 <parameters>            -> IDENTIFIER [ "," IDENTIFIER ]*
@@ -51,8 +52,11 @@ The main purpose of statements is to execute a side effect that can be persisted
 The evaluation of an expression always yields a value.
 
 ```
-<expression>            -> <assignment>
-<assignment>            -> IDENTIFIER "=" <assignment> | <logic_or>
+<expression>            -> <assignment> | <anonymous_fun>
+<assignment>            -> [ IDENTIFIER "=" ]? <assignment> | <logic_or>
+
+// anonymous function expression - yields a reference to a 'LoxFunction' object
+<anonymous_fun>         -> "fun" "(" <parameters>? ")" <block>
 
 <logic_or>              -> <logic_and> [ "or" <logic_and> ]*
 <logic_and>             -> <equality> [ "and" <equality> ]*

@@ -7,6 +7,7 @@ import com.lox.lexer.LoxToken;
 public abstract class Expr {
     public static interface Visitor<R> {
         public R visitAssignmentExpr(Expr.Assignment expr);
+        public R visitAnonymousFuncExpr(Expr.AnonymousFunc expr);
         public R visitGroupingExpr(Expr.Grouping expr);
         public R visitBinaryExpr(Expr.Binary expr);
         public R visitUnaryExpr(Expr.Unary expr);
@@ -34,6 +35,21 @@ public abstract class Expr {
         @Override
         public String toString () {
             return ("{ assign_id: " + this.variable.literal + ", right: " + this.right.toString() + " }");
+        }
+    }
+
+    public static class AnonymousFunc extends Expr {
+        final public List<LoxToken> parameters;
+        final public Stmt.BlockStmt body;
+
+        public AnonymousFunc(List<LoxToken> parameters, Stmt.BlockStmt body) {
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        @Override
+        public <R> R accept (Expr.Visitor<R> visitor) {
+            return visitor.visitAnonymousFuncExpr(this);
         }
     }
 

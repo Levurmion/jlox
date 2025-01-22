@@ -270,7 +270,11 @@ public class LoxGrammar {
     // ===== EXPRESSIONS =====
 
     private Expr expression (LoxParser.Context ctx) {
-        return assignment(ctx);
+        if (ctx.lookahead(LoxTokenType.FUN)) {
+            return anonymousFunc(ctx);
+        } else {
+            return assignment(ctx);
+        }
     }
 
     private Expr assignment (LoxParser.Context ctx) {
@@ -284,6 +288,14 @@ public class LoxGrammar {
             // expecting logicOr
             return logicOr(ctx);
         }
+    }
+
+    private Expr anonymousFunc (LoxParser.Context ctx) {
+        ctx.match(LoxTokenType.FUN);
+        List<LoxToken> parameters = parameters(ctx);
+        Stmt.BlockStmt body = blockStatement(ctx);
+
+        return new Expr.AnonymousFunc(parameters, body);
     }
 
     private Expr logicOr (LoxParser.Context ctx) {

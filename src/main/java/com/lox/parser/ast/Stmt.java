@@ -54,8 +54,16 @@ public abstract class Stmt {
         final public List<LoxToken> parameters;
         final public Stmt.BlockStmt body;
 
+        /** named function declaration */
         public FunDeclStmt(LoxToken identifier, List<LoxToken> parameters, Stmt.BlockStmt body) {
             this.identifier = identifier;
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        /** anoynymous function declaration */
+        public FunDeclStmt(List<LoxToken> parameters, Stmt.BlockStmt body) {
+            this.identifier = null;
             this.parameters = parameters;
             this.body = body;
         }
